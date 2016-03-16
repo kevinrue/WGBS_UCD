@@ -9,3 +9,7 @@
 
 # Raw data
 rawdata
+log
+
+# Temp files
+*~
