@@ -25,8 +25,10 @@ for folder in `echo $folders`
 do
 	cd $rootdir/$folder
 	echo "folder: `pwd`"
-	echo "Processing $(ls ./*fastq.gz | wc -l) files..."
+	echo "Processing $(wc -l $md5file) files..."
 	echo "md5sum -c $md5file"
 	md5sum -c ./$md5file >> $cwd/log/$log
+	# Restore original state for the loop (critical if rootdir is relative)
+	cd $cwd
 done
 

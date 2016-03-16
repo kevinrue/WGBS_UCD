@@ -7,9 +7,14 @@
 # R data files from past sessions
 .Rdata
 
-# Raw data
+# Raw data folder
 rawdata
+
+# Log files
 log
+
+# Standard output files
+*.out
 
 # Temp files
 *~
