@@ -6,6 +6,7 @@ if [ $# -lt 1 ]; then
 fi
 
 cwd=`pwd`
+echo "cwd: $cwd"
 
 md5file=md5.txt
 
@@ -14,11 +15,11 @@ rootdir=$1
 folders=`find $rootdir -name "$md5file" -exec dirname {} \;`
 echo -e "folders (next line):\n$folders"
 
-log=$(basename $0 .sh)_$(date -I)
+log=$(basename $0 .sh)_$(date -I).txt
 echo "log: $log"
 
-if [ ! -e $rootdir/log ]; then
-	mkdir -p $rootdir/log
+if [ ! -e $cwd/log ]; then
+	mkdir -p $cwd/log
 fi
 
 for folder in `echo $folders`

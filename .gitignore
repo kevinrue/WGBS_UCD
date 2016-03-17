@@ -13,8 +13,11 @@ rawdata
 # Log files
 log
 
+# Quality control files
+fastqc
+
 # Standard output files
-*.out
+out*
 
 # Temp files
 *~
