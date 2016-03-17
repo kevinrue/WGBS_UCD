@@ -13,6 +13,9 @@ rootdir=$1
 log=$(basename $0 .sh)_$(date -I).txt
 echo "log: $log"
 
+# Overwrite the previous log file
+> $cwd/log/$log
+
 if [ ! -e $cwd/log ]; then
 	mkdir -p $cwd/log
 fi
