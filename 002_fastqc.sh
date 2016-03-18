@@ -23,9 +23,9 @@ echo -e "folders (next line):\n$folders"
 #log=$(basename $0 .sh)_$(date -I)
 #echo "log: $log"
 
-if [ ! -e $rootdir/log ]; then
-	mkdir -pv $rootdir/log
-fi
+#if [ ! -e $rootdir/log ]; then
+#	mkdir -pv $rootdir/log
+#fi
 
 if [ ! -e $outdir ]; then
 	mkdir -pv $outdir

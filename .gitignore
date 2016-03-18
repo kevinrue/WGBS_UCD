@@ -13,11 +13,14 @@ rawdata
 # Log files
 log
 
+# Standard output files
+out*
+
 # Quality control files
 fastqc
 
-# Standard output files
-out*
+# Trimming files
+trim_galore
 
 # Temp files
 *~

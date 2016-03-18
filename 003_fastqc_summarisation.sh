@@ -28,6 +28,7 @@ do
 	echo "batch: $batch"
 	for summaryfile in `find $rootdir/$batch -name summary.txt`
 	do
+		echo "awk -v batch=$batch 'BEGIN {OFS=\"\t\"} {print \$0,batch}' $summaryfile >> $cwd/log/$log"
 		awk -v batch=$batch 'BEGIN {OFS="\t"} {print $0,batch}' $summaryfile >> $cwd/log/$log
 	done
 done
