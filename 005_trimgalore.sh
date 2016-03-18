@@ -49,28 +49,25 @@ do
 	cmd="trim_galore"
 	if [ $paired -gt 0 ]
 	then
-		cmd="$cmd --paired --trim1"
+		cmd="$cmd --paired --trim1 --retain_unpaired"
 	fi
-	cmd="$cmd --output_dir $outdir/$batch --illumina --retain_unpaired"
+	cmd="$cmd --output_dir $outdir/$batch --illumina"
 	fastq1s=$(echo $fastq1s | xargs)
+	echo "fastq1s count: $(echo $fastq1s | wc -w)"
 	if [ $paired -gt 0 ]
 	then
-		fastq2s=$(echo $fastq1s | perl -p -e 's/_R1_/_R2_/' | xargs)
-		#echo -e "fastq2s:\n$fastq2s"
+		fastq2s=$(echo $fastq1s | perl -p -e 's/_R1_/_R2_/g' | xargs)
+		echo "fastq2s count: $(echo $fastq2s | wc -w)"
 		echo "parallel -j $threads --xapply $cmd ::: $fastq1s ::: $fastq2s"
 		time(
 			parallel -j $threads --xapply $cmd ::: $fastq1s ::: $fastq2s
 		)
 	else
-		echo "parallel -j $threads --xapply $cmd ::: $fastq1s"
+		echo "parallel -j $threads $cmd ::: $fastq1s"
 		time(
-		parallel -j $threads --xapply $cmd ::: $fastq1s
+			parallel -j $threads $cmd ::: $fastq1s
 		)
 	fi
-#	for fastq1 in $fastq1s
-#	do
-#		echo "$cmd $fastq1 $(echo $fastq1 | perl -p -e 's/_R1_/_R2_/')" | parallel -j 12
-#	done
 done
 
 
