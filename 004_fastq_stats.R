@@ -52,7 +52,11 @@ fastqc <- read.table(
 
 files <- as.character(fastqc$File)
 
-fastqc$Sample <- strsplit2(files, '_')[,1]
+filesplit <- strsplit2(files, '_')
+
+fastqc$Lane <- apply(filesplit, 1, function(x){x[grep('^L00', x)]})
+
+fastqc$Sample <- filesplit[,1]
 
 fastqc$Read <- factor(
   str_detect(files, 'R1'),
