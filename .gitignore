@@ -21,6 +21,7 @@ fastqc
 
 # Trimming files
 trim_galore
+fastqc_trimmed
 
 # Temp files
 *~

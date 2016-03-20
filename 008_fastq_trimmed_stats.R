@@ -13,7 +13,7 @@ option_list <- list(
 
 parser.description = '
 Formats the output of 003_fastqc_summarisation.sh for convenient
-analysis in Excel Pivot tables.
+analysis of trim_galore trimmed reads in Excel Pivot tables.
 
 Mandatory arguments:
 \tinput_file
@@ -68,5 +68,10 @@ fastqc$Infection <- factor(
   str_detect(files, '^C'),
   levels = c(TRUE, FALSE),
   labels = c('Control', 'M. bovis'))
+
+fastqc$Unpaired <- factor(
+  str_detect(files, 'unpaired'),
+  levels = c(TRUE, FALSE),
+  labels = c('Unpaired', 'Paired'))
 
 write.csv(x = fastqc, file = outfile, row.names = FALSE)
