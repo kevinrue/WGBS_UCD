@@ -10,6 +10,9 @@
 # Raw data folder
 rawdata
 
+# Genome folder
+bostaurus
+
 # Log files
 log
 
