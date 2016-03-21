@@ -51,7 +51,7 @@ do
 	then
 		cmd="$cmd --paired --trim1 --retain_unpaired"
 	fi
-	cmd="$cmd --output_dir $outdir/$batch --illumina"
+	cmd="$cmd --output_dir $outdir/$batch"
 	fastq1s=$(echo $fastq1s | xargs)
 	echo "fastq1s count: $(echo $fastq1s | wc -w)"
 	if [ $paired -gt 0 ]
