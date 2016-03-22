@@ -26,5 +26,8 @@ fastqc
 trim_galore
 fastqc_trimmed
 
+# Alignment files
+bismark
+
 # Temp files
 *~
