@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -lt 4 ]; then
-	echo "Usage: $0 <genome> <rootdir> <outdir> <theads>"
+if [ $# -lt 5 ]; then
+	echo "Usage: $0 <genome> <rootdir> <outdir> <theads> <tempdir>"
 	exit 1
 fi
 
@@ -16,6 +16,8 @@ outdir=$3
 echo "outdir: $outdir"
 threads=$4
 echo "threads: $threads"
+tempdir=$5
+echo "tempdir: $tempdir"
 
 # Finds folders that contain fq.gz files
 folders=`find $rootdir -name "*fq.gz" -exec dirname {} \; | sort | uniq`
@@ -37,8 +39,8 @@ do
 	# Guess whether this is a single or paired-end batch
 	single=$(ls $folder | grep -c 'trimmed.fq.gz')
 	echo "single: $single"
-	cmd="bismark -n 1 $genome/ --bowtie1 --unmapped --ambiguous \
-		--output_dir $outdir/$batch --multicore $threads"
+	cmd="bismark $genome/ --unmapped --ambiguous --bowtie2 \
+		--output_dir $outdir/$batch -p $threads --temp_dir $tempdir"
 	if [ $single -gt 0 ]; then
 		# Identify all the NOT_BS reads in the folder
 		fastqs=$(find $folder -name '*trimmed.fq.gz' | grep -v 'NOT_BS' | \
