@@ -93,12 +93,13 @@ NA_info(){
 NA\",\"NA\",\"NA\",\"NA\",\"NA\",\"NA" # 15 NAs
 }
 
-echo "\"Batch\",\"Sample\",\"Read1\",\"Adapter1\",\"AdapterPct1\",\
-\"ReadOut1\",\"ReadOutPct1\",\"Base1\",\"QualTrim1\",\"QualTrimPct1\",\
-\"BaseOut1\",\"BaseOutPct1\",\"A1\",\"C1\",\"G1\",\"T1\",\"N1\",\"Read2\",\
-\"Adapter2\",\"AdapterPct2\",\"ReadOut2\",\"ReadOutPct2\",\"Base2\",\
-\"QualTrim2\",\"QualTrimPct2\",\"BaseOut2\",\"BaseOutPct2\",\"A2\",\"C2\",\
-\"G2\",\"T2\",\"N2\",\"Pass\",\"Pass1\",\"Pass2\"" > $CSVfile
+echo "\"Batch\",\"Filename\",\"Sample\",\"Treatment\",\"Infection\",\"Lane\",\
+\"Read1\",\"Adapter1\",\"AdapterPct1\",\"ReadOut1\",\"ReadOutPct1\",\"Base1\",\
+\"QualTrim1\",\"QualTrimPct1\",\"BaseOut1\",\"BaseOutPct1\",\"A1\",\"C1\",\
+\"G1\",\"T1\",\"N1\",\"Read2\",\"Adapter2\",\"AdapterPct2\",\"ReadOut2\",\
+\"ReadOutPct2\",\"Base2\",\"QualTrim2\",\"QualTrimPct2\",\"BaseOut2\",\
+\"BaseOutPct2\",\"A2\",\"C2\",\"G2\",\"T2\",\"N2\",\"Pass\",\"Pass1\",\
+\"Pass2\"" > $CSVfile
 
 for folder in `echo $folders`
 do
@@ -111,9 +112,21 @@ do
 	do
 		echo "report1: $report1"
 		filename=$(basename $report1)
-		# Identify the sample to annotate the output metrics
-		sample=$(echo $filename | perl -pe 's/([CM]{1}[[:digit:]]{1,2}.*)_L.*/\1/')
-		#echo $sample
+		# Extract sample information from the filename
+		sample=$(echo $filename | perl -pe 's/^([CM]{1}[[:digit:]]{1,2}).*/\1/')
+		#echo "sample: $sample"
+		treatment=$(echo $f2 | awk '{
+			if ($0 ~ /_NOT_BS_/){t="NOT BS"}
+			else{t="BS"}
+			print t}' )
+#		echo "treatment: $treatment"
+		infection=$(echo $f2 | awk '{
+			if ($0 ~ /^C/){i="Control"}
+			else{i="M. bovis"}
+			print i}' )
+#		echo "infection: $infection"
+		lane=$(echo $filename | perl -pe 's/.*(L[[:digit:]]{3}).*/\1/')
+#		echo "lane: $lane"
 		# Extract information for the forward read
 		info_forward=$(extract_info $report1)
 		# If there is a second mate extract the same info
@@ -151,8 +164,8 @@ do
 			pass_1='NA'
 			pass_2='NA'
 		fi
-		echo "\"$batch\",\"$sample\",\"$info_forward\",\"$info_reverse\",\"\
-$pass_all\",\"$pass_1\",\"$pass_2\"" >> $CSVfile
+		echo "\"$batch\",\"$filename\",\"$sample\",\"$treatment\",\"$infection\",\"$lane\",\"$info_forward\",\"$info_reverse\",\"$pass_all\",\"$pass_1\",\"$pass_2\"" >> $CSVfile
+
 	done
 done
 
