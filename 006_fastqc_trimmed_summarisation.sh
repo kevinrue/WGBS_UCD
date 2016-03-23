@@ -25,7 +25,7 @@ if [ ! -e $outfolder ]; then
 fi
 
 echo "\"Value\",\"QC\",\"File\",\"Batch\",\"Lane\",\"Sample\",\"Read\",\"Treatment\",\
-\"Infection\"" > $CSVfile
+\"Infection\",\"Unpaired\"" > $CSVfile
 
 for folder in `ls $rootdir`
 do
@@ -48,7 +48,12 @@ do
 			else{
 				i="M. bovis"
 			}
-			print "\""$1,$2,$3,batch,fs[nf-2],fs[1],fs[nf-1],t,i"\""
+			if (fs[3] ~ /unpaired/){
+				u="Unpaired"}
+			else{
+				u="Paired"
+			}
+			print "\""$1,$2,$3,batch,fs[nf-4],fs[1],fs[nf-3],t,i,u"\""
 		}' $summaryfile >> $CSVfile
 	done
 done
