@@ -111,9 +111,8 @@ do
 	do
 		echo "report1: $report1"
 		filename=$(basename $report1)
-		file_info=(${filename//_/ })
 		# Identify the sample to annotate the output metrics
-		sample=${file_info[0]}
+		sample=$(echo $filename | perl -pe 's/([CM]{1}[[:digit:]]{1,2}.*)_L.*/\1/')
 		#echo $sample
 		# Extract information for the forward read
 		info_forward=$(extract_info $report1)
