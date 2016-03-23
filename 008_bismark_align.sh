@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "$0"
+echo "$(date -I)"
+
 if [ $# -lt 5 ]; then
 	echo "Usage: $0 <genome> <rootdir> <outdir> <theads> <tempdir>"
 	exit 1

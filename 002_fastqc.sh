@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "$0"
+echo "$(date -I)"
+
 if [ $# -lt 4 ]; then
 	echo "Usage: $0 <rootdir> <target_file> <outdir> <threads>"
 	exit 1
@@ -19,13 +22,6 @@ echo "threads: $threads"
 
 folders=`find $rootdir -name "$target_file" -exec dirname {} \; | sort | uniq`
 echo -e "folders (next line):\n$folders"
-
-#log=$(basename $0 .sh)_$(date -I)
-#echo "log: $log"
-
-#if [ ! -e $rootdir/log ]; then
-#	mkdir -pv $rootdir/log
-#fi
 
 if [ ! -e $outdir ]; then
 	mkdir -pv $outdir

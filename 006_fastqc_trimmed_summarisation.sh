@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "$0"
+echo "$(date -I)"
+
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 <rootdir> [CSVfile]"
 	exit 1

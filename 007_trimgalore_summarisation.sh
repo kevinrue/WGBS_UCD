@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "$0"
+echo "$(date -I)"
 
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 <rootdir> [CSVfile]"
@@ -129,17 +130,19 @@ do
 #			echo "val2: $val2"
 			# Count the number of validated read pairs (based on forward)
 			pass_all=$(($(zcat $val1 | wc -l) / 4 ))
-			echo "pass_all: $pass_all"
+#			echo "pass_all: $pass_all"
 #			pass_2=$(($(zcat $val2 | wc -l) / 4 ))
 #			echo "pass_2: $pass_2"
 			unpaired1=$(echo $report1 | \
 				sed -e 's/\.fastq\.gz_trimming_report\.txt/_unpaired_1.fq.gz/')
+			echo "unpaired1: $unpaired1"
 			pass_1=$(($(zcat $unpaired1 | wc -l) / 4 ))
-			echo "pass_1: $pass_1"
+#			echo "pass_1: $pass_1"
 			unpaired2=$(echo $report2 | \
 				sed -e 's/\.fastq\.gz_trimming_report\.txt/_unpaired_2.fq.gz/')
+			echo "unpaired2: $unpaired2"
 			pass_2=$(($(zcat $unpaired2 | wc -l) / 4 ))
-			echo "pass_2: $pass_2"
+#			echo "pass_2: $pass_2"
 		# if there is no other mate insert NAs
 		else
 			info_reverse=$(NA_info)

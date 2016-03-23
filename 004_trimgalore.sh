@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "$0"
+echo "$(date -I)"
+
 if [ $# -lt 3 ]; then
 	echo "Usage: $0 <rootdir> <outdir> <threads>"
 	exit 1
