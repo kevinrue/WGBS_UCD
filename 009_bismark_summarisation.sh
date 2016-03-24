@@ -122,6 +122,13 @@ $m_CHG\",\"$m_CHH\",\"$m_unk\",\"$u_CpG\",\"$u_CHG\",\"$u_CHH\",\"$u_unk\",\"\
 $pm_CpG\",\"$pm_CHG\",\"$pm_CHH\",\"$pm_unk"
 }
 
+echo "\"Batch\",\"Identifier\",\"Filename\",\"Sample\",\"Treatment\",
+\"Infection\",\"Lane\",\"ReadIn\",\"Unique\",\"Efficiency\",\"Unaligned\",
+\"Multimap\",\"SeqIssue\",\"OT\",\"CTOT\",\"CTOB\",\"OB\",\"MethCpG\",\
+\"MethCHG\",\"MetCHH\",\"MethUnk\",\"UnmethCpG\",\"UnmethCHG\",\"UnmetCHH\",\
+\"UnmethUnk\",\"MethPctCpG\",\"MethPctCHG\",\"MethPctCHH\",\"MethPctUnk\"\
+"> $CSVfile
+
 for folder in `echo $folders`
 do
 	echo "folder: $folder"
@@ -152,9 +159,9 @@ do
 		lane=$(echo $filename | perl -pe 's/.*(L[[:digit:]]{3}).*/\1/')
 #		echo "lane: $lane"
 		# Extract information for the forward read
-		info_forward=$(extract_info $report1)
+		info=$(extract_info $report1)
 		
-		echo "\"$batch\",\"$identifier\",\"$filename\",\"$sample\",\"$treatment\",\"$infection\",\"$lane\",\"$info_forward\"" >> $CSVfile
-		exit
+		echo "\"$batch\",\"$identifier\",\"$filename\",\"$sample\",\"\
+$treatment\",\"$infection\",\"$lane\",\"$info\"" >> $CSVfile
 	done
 done
