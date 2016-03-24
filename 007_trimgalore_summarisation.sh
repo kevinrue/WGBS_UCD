@@ -93,7 +93,7 @@ NA_info(){
 NA\",\"NA\",\"NA\",\"NA\",\"NA\",\"NA" # 15 NAs
 }
 
-echo "\"Batch\",\"Filename\",\"Sample\",\"Treatment\",\"Infection\",\"Lane\",\
+echo "\"Batch\",\"Identifier\",\"Filename\",\"Sample\",\"Treatment\",\"Infection\",\"Lane\",\
 \"Read1\",\"Adapter1\",\"AdapterPct1\",\"ReadOut1\",\"ReadOutPct1\",\"Base1\",\
 \"QualTrim1\",\"QualTrimPct1\",\"BaseOut1\",\"BaseOutPct1\",\"A1\",\"C1\",\
 \"G1\",\"T1\",\"N1\",\"Read2\",\"Adapter2\",\"AdapterPct2\",\"ReadOut2\",\
@@ -113,13 +113,14 @@ do
 		echo "report1: $report1"
 		filename=$(basename $report1)
 		# Extract sample information from the filename
+		identifier=$(echo $filename | perl -pe 's/^(.*)_R1.*/\1/')
 		sample=$(echo $filename | perl -pe 's/^([CM]{1}[[:digit:]]{1,2}).*/\1/')
 		#echo "sample: $sample"
-		treatment=$(echo $f2 | awk '{
+		treatment=$(echo $filename | awk '{
 			if ($0 ~ /_NOT_BS_/){t="NOT BS"}
 			else{t="BS"}
 			print t}' )
-#		echo "treatment: $treatment"
+		echo "treatment: $treatment"
 		infection=$(echo $f2 | awk '{
 			if ($0 ~ /^C/){i="Control"}
 			else{i="M. bovis"}
@@ -164,8 +165,7 @@ do
 			pass_1='NA'
 			pass_2='NA'
 		fi
-		echo "\"$batch\",\"$filename\",\"$sample\",\"$treatment\",\"$infection\",\"$lane\",\"$info_forward\",\"$info_reverse\",\"$pass_all\",\"$pass_1\",\"$pass_2\"" >> $CSVfile
-
+		echo "\"$batch\",\"$identifier\",\"$filename\",\"$sample\",\"$treatment\",\"$infection\",\"$lane\",\"$info_forward\",\"$info_reverse\",\"$pass_all\",\"$pass_1\",\"$pass_2\"" >> $CSVfile
 	done
 done
 
