@@ -122,8 +122,8 @@ $m_CHG\",\"$m_CHH\",\"$m_unk\",\"$u_CpG\",\"$u_CHG\",\"$u_CHH\",\"$u_unk\",\"\
 $pm_CpG\",\"$pm_CHG\",\"$pm_CHH\",\"$pm_unk"
 }
 
-echo "\"Batch\",\"Identifier\",\"Filename\",\"Sample\",\"Treatment\",
-\"Infection\",\"Lane\",\"ReadIn\",\"Unique\",\"Efficiency\",\"Unaligned\",
+echo "\"Batch\",\"Identifier\",\"Filename\",\"Sample\",\"Treatment\",\
+\"Infection\",\"Lane\",\"ReadIn\",\"Unique\",\"Efficiency\",\"Unaligned\",\
 \"Multimap\",\"SeqIssue\",\"OT\",\"CTOT\",\"CTOB\",\"OB\",\"MethCpG\",\
 \"MethCHG\",\"MetCHH\",\"MethUnk\",\"UnmethCpG\",\"UnmethCHG\",\"UnmetCHH\",\
 \"UnmethUnk\",\"MethPctCpG\",\"MethPctCHG\",\"MethPctCHH\",\"MethPctUnk\"\
