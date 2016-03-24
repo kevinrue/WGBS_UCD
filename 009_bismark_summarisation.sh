@@ -50,8 +50,20 @@ str_CTOB_start="GA\/CT\/GA:[[:space:]]*"
 str_CTOB_end="[[:space:]]*\(complementary to \(converted\) bottom strand\)"
 str_OB_start="CT\/GA\/GA:[[:space:]]*"
 str_OB_end="[[:space:]]*\(\(converted\) bottom strand\)"
+str_m_CpG="Total methylated C's in CpG context:[[:space:]]*"
+str_m_CHG="Total methylated C's in CHG context:[[:space:]]*"
+str_m_CHH="Total methylated C's in CHH context:[[:space:]]*"
+str_m_unk="Total methylated C's in Unknown context:[[:space:]]*"
+str_u_CpG="Total unmethylated C's in CpG context:[[:space:]]*"
+str_u_CHG="Total unmethylated C's in CpG context:[[:space:]]*"
+str_u_CHH="Total unmethylated C's in CpG context:[[:space:]]*"
+str_u_unk="Total unmethylated C's in Unknown context:[[:space:]]*"
+str_pm_CpG="C methylated in CpG context:[[:space:]]*"
+str_pm_CHG="C methylated in CHG context:[[:space:]]*"
+str_pm_CHH="C methylated in CHH context:[[:space:]]*"
+str_pm_unk="C methylated in unknown context \(CN or CHN\):[[:space:]]*"
 
-echo "$str_OB_start$str_count$str_OB_end"
+echo "$str_pm_unk$str_perc"
 
 # Function to extract relevant info from file
 extract_info(){
@@ -79,9 +91,35 @@ extract_info(){
 		perl -pe "s/$str_CTOB_start$str_count$str_CTOB_end/\1/")
 	OB=$(grep -E "$str_OB_end" $1 | 
 		perl -pe "s/$str_OB_start$str_count$str_OB_end/\1/")
+	m_CpG=$(grep "$str_m_CpG" $1 | 
+		perl -pe "s/$str_m_CpG$str_count/\1/")
+	m_CHG=$(grep "$str_m_CHG" $1 | 
+		perl -pe "s/$str_m_CHG$str_count/\1/")
+	m_CHH=$(grep "$str_m_CHH" $1 | 
+		perl -pe "s/$str_m_CHH$str_count/\1/")
+	m_unk=$(grep "$str_m_unk" $1 | 
+		perl -pe "s/$str_m_unk$str_count/\1/")
+	u_CpG=$(grep "$str_u_CpG" $1 | 
+		perl -pe "s/$str_u_CpG$str_count/\1/")
+	u_CHG=$(grep "$str_u_CHG" $1 | 
+		perl -pe "s/$str_u_CHG$str_count/\1/")
+	u_CHH=$(grep "$str_u_CHH" $1 | 
+		perl -pe "s/$str_u_CHH$str_count/\1/")
+	u_unk=$(grep "$str_u_unk" $1 | 
+		perl -pe "s/$str_u_unk$str_count/\1/")
+	pm_CpG=$(grep "$str_pm_CpG" $1 | 
+		perl -pe "s/$str_pm_CpG$str_perc/\1/")
+	pm_CHG=$(grep "$str_pm_CHG" $1 | 
+		perl -pe "s/$str_pm_CHG$str_perc/\1/")
+	pm_CHH=$(grep "$str_pm_CHH" $1 | 
+		perl -pe "s/$str_pm_CHH$str_perc/\1/")
+	pm_unk=$(grep -E "$str_pm_unk" $1 | 
+		perl -pe "s/$str_pm_unk$str_perc/\1/")
 	# return the result
 	echo "$input_read\",\"$unique_read\",\"$efficiency\",\"$unaligned\",\"\
-$multimap\",\"$seq_issue\",\"$OT\",\"$CTOT\",\"$CTOB\",\"$OB"
+$multimap\",\"$seq_issue\",\"$OT\",\"$CTOT\",\"$CTOB\",\"$OB\",\"$m_CpG\",\"\
+$m_CHG\",\"$m_CHH\",\"$m_unk\",\"$u_CpG\",\"$u_CHG\",\"$u_CHH\",\"$u_unk\",\"\
+$pm_CpG\",\"$pm_CHG\",\"$pm_CHH\",\"$pm_unk"
 }
 
 for folder in `echo $folders`
@@ -116,7 +154,7 @@ do
 		# Extract information for the forward read
 		info_forward=$(extract_info $report1)
 		
-		echo "\"$batch\",\"$identifier\",\"$filename\",\"$sample\",\"$treatment\",\"$infection\",\"$lane\",\"$info_forward\""
+		echo "\"$batch\",\"$identifier\",\"$filename\",\"$sample\",\"$treatment\",\"$infection\",\"$lane\",\"$info_forward\"" >> $CSVfile
 		exit
 	done
 done
