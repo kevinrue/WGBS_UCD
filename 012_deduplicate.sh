@@ -29,7 +29,7 @@ do
 	# Identify whether reverse reads are present in the folder
 	paired=$(find $folder -name '*_val_1*.bam' | wc -l)
 	echo "paired: $paired"
-	cmd="deduplicate_bismark"
+	cmd="deduplicate_bismark --bam"
 	if [ $paired -gt 0 ]
 	then
 		cmd="$cmd -p"
