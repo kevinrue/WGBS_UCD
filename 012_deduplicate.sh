@@ -24,20 +24,36 @@ for folder in `echo $folders`
 do
 	echo "folder: $folder"
 	# Identify all the BAM files in the folder
-	bams=$(find $folder -name '*bam' | xargs)
-	echo -e "BAMs (next lines):\n$bams"
-	# Identify whether reverse reads are present in the folder
-	paired=$(find $folder -name '*_val_1*.bam' | wc -l)
-	echo "paired: $paired"
-	cmd="deduplicate_bismark --bam"
-	if [ $paired -gt 0 ]
+	bams_paired=$(find $folder -name '*val*bam' | xargs)
+	bams_unpaired=$(find $folder -name '*unpaired*bam' | xargs)
+	bams_single=$(find $folder -name '*trimmed*bam' | xargs)
+	# Count how many elements in each array
+	counts_paired=$(echo $bams_paired | wc -w)
+	counts_unpaired=$(echo $bams_unpaired | wc -w)
+	counts_single=$(echo $bams_single | wc -w)
+	echo "paired: $counts_paired"
+	echo "unpaired: $counts_unpaired"
+	echo "single: $counts_single"
+	cmd=""
+	if [ $counts_paired -gt 0 ]
 	then
-		cmd="$cmd -p"
-	else
-		cmd="$cmd -s"
+		echo "parallel -j $threads --xapply $cmd -p ::: $bams_paired"
+		time(
+			parallel -j $threads --xapply $cmd -p ::: $bams_paired
+		)
 	fi
-	echo "parallel -j $threads --xapply $cmd ::: $bams"
-	time(
-		parallel -j $threads --xapply $cmd ::: $bams
-	)
+	if [ $counts_unpaired -gt 0 ]
+	then
+		echo "parallel -j $threads --xapply $cmd -s ::: $bams_unpaired"
+		time(
+			parallel -j $threads --xapply $cmd -p ::: $bams_unpaired
+		)
+	fi
+	if [ $counts_single -gt 0 ]
+	then
+		echo "parallel -j $threads --xapply $cmd -s ::: $bams_single"
+		time(
+			parallel -j $threads --xapply $cmd -p ::: $bams_single
+		)
+	fi
 done
