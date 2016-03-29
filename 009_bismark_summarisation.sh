@@ -34,21 +34,22 @@ echo -e "folders (next line):\n$folders"
 
 str_perc="([0-9\.]*)%.*"
 str_count="([[:digit:]]*)"
-
+#Number of paired-end alignments with a unique best hit: 7407334
+#Number of alignments with a unique best hit from the different alignments:
 # Adapt below to seemlessly process single- and paired-end files
-str_read_in="Sequence pairs analysed in total:[[:space:]]*"
-str_unique="Number of paired-end alignments with a unique best hit:[[:space:]]*"
+str_read_in="Sequence[ pair]*s analysed in total:[[:space:]]*"
+str_unique="Number of[[:space:][:alpha:]-]*alignments with a unique best hit[[:space:][:alpha:]]*:[[:space:]]*"
 str_efficiency="Mapping efficiency:[[:space:]]*"
-str_unaligned="Sequence pairs with no alignments under any condition:[[:space:]]*"
-str_multimap="Sequence pairs did not map uniquely:[[:space:]]*"
-str_seq_issue="Sequence pairs which were discarded because genomic sequence could not be extracted:[[:space:]]*"
-str_OT_start="CT\/GA\/CT:[[:space:]]*"
+str_unaligned="Sequence[ pair]*s with no alignments under any condition:[[:space:]]*"
+str_multimap="Sequence[ pair]*s did not map uniquely:[[:space:]]*"
+str_seq_issue="Sequence[ pair]*s which were discarded because genomic sequence could not be extracted:[[:space:]]*"
+str_OT_start="CT[\/GA]*\/CT:[[:space:]]*"
 str_OT_end="[[:space:]]*\(\(converted\) top strand\)"
-str_CTOT_start="GA\/CT\/CT:[[:space:]]*"
+str_CTOT_start="GA[\/CT]*\/CT:[[:space:]]*"
 str_CTOT_end="[[:space:]]*\(complementary to \(converted\) top strand\)"
-str_CTOB_start="GA\/CT\/GA:[[:space:]]*"
+str_CTOB_start="GA[\/CT]*\/GA:[[:space:]]*"
 str_CTOB_end="[[:space:]]*\(complementary to \(converted\) bottom strand\)"
-str_OB_start="CT\/GA\/GA:[[:space:]]*"
+str_OB_start="CT[\/GA]*\/GA:[[:space:]]*"
 str_OB_end="[[:space:]]*\(\(converted\) bottom strand\)"
 str_m_CpG="Total methylated C's in CpG context:[[:space:]]*"
 str_m_CHG="Total methylated C's in CHG context:[[:space:]]*"
@@ -61,7 +62,7 @@ str_u_unk="Total unmethylated C's in Unknown context:[[:space:]]*"
 str_pm_CpG="C methylated in CpG context:[[:space:]]*"
 str_pm_CHG="C methylated in CHG context:[[:space:]]*"
 str_pm_CHH="C methylated in CHH context:[[:space:]]*"
-str_pm_unk="C methylated in unknown context \(CN or CHN\):[[:space:]]*"
+str_pm_unk="C methylated in [uU]nknown context \(CN or CHN\):[[:space:]]*"
 
 echo "$str_pm_unk$str_perc"
 
@@ -151,7 +152,7 @@ do
 			else{t="BS"}
 			print t}' )
 		echo "treatment: $treatment"
-		infection=$(echo $f2 | awk '{
+		infection=$(echo $filename | awk '{
 			if ($0 ~ /^C/){i="Control"}
 			else{i="M. bovis"}
 			print i}' )
