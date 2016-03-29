@@ -61,7 +61,7 @@ do
 		#echo -e "paired1s (next line):\n$paired1s"
 		#echo -e "paired2s (next line):\n$paired2s"
 		#echo -e "unpaired (next line):\n$unpaired"
-		cmd_run="$cmd -1 $paired1s -2 $paired2s; $cmd $unpaired"
+		cmd_run="$cmd -1 $paired1s -2 $paired2s ; $cmd $unpaired"
 	fi
 	echo "cmd_run: $cmd_run"
 	time(
