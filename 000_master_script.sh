@@ -23,3 +23,17 @@
 
 # Align bisulfite libraries (single-end, paired-end, trimmed unpaired)
 ./008_bismark_align.sh <genome> <rootdir> <outdir> <theads> <tempdir>
+
+# Collate the output of bismark in a friendly CSV file
+./009_bismark_summarisation.sh bismark > out.009
+
+# Control quality of the aligned reads
+./010_fastqc.sh bismark *.bam fastqc_aligned 6 > out.010
+
+# TODO: ./011 Collate the output of FastQC in a friendly CSV file
+
+
+# Remove duplicate reads / pairs aligned
+./012_deduplicate.sh bismark 6 > out.012
+
+

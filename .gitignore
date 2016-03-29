@@ -21,10 +21,11 @@ out*
 
 # Quality control files
 fastqc
+fastqc_trimmed
+fastqc_aligned
 
 # Trimming files
 trim_galore
-fastqc_trimmed
 
 # Alignment files
 bismark
