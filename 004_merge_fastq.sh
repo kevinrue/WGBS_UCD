@@ -18,14 +18,6 @@ echo "outdir: $outdir"
 threads=$3
 echo "threads: $threads"
 
-#R2files=$(find $rootdir -name "*_R2_*fastq.gz")
-#echo -e "R2files (next lines):\n$R2files"
-#echo "R2files: $(echo $R2files | wc -w)"
-
-#R1files=$(echo $R2files | sed -e 's/_R2_/_R1_/g')
-#echo -e "R1files (next lines):\n$R1files"
-#echo "R1files: $(echo $R1files | wc -w)"
-
 # Identify the sample name for all paired-end libraries
 samples=$(find $rootdir -name "*_R2_*fastq.gz" -exec basename {} \; | perl -pe 's/([CM][[:digit:]]{1,2}[_NOTBSATGC]*)_.*/\1/g' | sort | uniq)
 #echo -e "samples (next lines):\n$samples"
@@ -46,20 +38,12 @@ do
 	# Deduce the first mates
 	R1files=$(echo $R2files | sed -e 's/_R2_/_R1_/g')
 #	echo -e "R1files: $(echo $R1files | wc -w)"
-	# (Over)Write a script to concatenate the different batches of each sample
-	scriptR1=$(echo "$outdir/script_${sample}_R1.sh")
-	scriptR2=$(echo "$outdir/script_${sample}_R2.sh")
-	echo -n "" > "$scriptR1"
-	echo -n "" > "$scriptR2"
-	echo "zcat $R1files | gzip -c > $R1outfile" > "$scriptR1"
-	echo "zcat $R2files | gzip -c > $R2outfile" > "$scriptR2"
+	echo "cat $R1files > $R1outfile"
+	cat $R1files > $R1outfile
+	echo "cat $R2files > $R2outfile"
+	cat $R2files > $R2outfile
 done
 
-scripts=$(find $outdir -name 'script*sh' | xargs)
-echo "scripts: $(echo $scripts | wc -w)"
-
-parallel -j $threads bash ::: $scripts
-
-rm -v $scripts
+echo "Completed."
 
 
