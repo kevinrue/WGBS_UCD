@@ -32,4 +32,4 @@ bismark
 
 # Temp files
 *~
-bismark_tmp
+tmp_bismark
