@@ -36,3 +36,4 @@ do
 	cd $cwd
 done
 
+echo "Completed."

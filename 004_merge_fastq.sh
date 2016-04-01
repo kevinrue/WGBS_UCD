@@ -19,12 +19,18 @@ threads=$3
 echo "threads: $threads"
 
 # Identify the sample name for all paired-end libraries
-samples=$(find $rootdir -name "*_R2_*fastq.gz" -exec basename {} \; | perl -pe 's/([CM][[:digit:]]{1,2}[_NOTBSATGC]*)_.*/\1/g' | sort | uniq)
+samples=$(find $rootdir -name "*_R2_*fastq.gz" -exec basename {} \; | \
+	perl -pe 's/([CM][[:digit:]]{1,2}[_NOTBSATGC]*)_.*/\1/g' | sort | uniq)
 #echo -e "samples (next lines):\n$samples"
 
 if [ ! -e $outdir ]; then
 	mkdir -pv $outdir
 fi
+
+tmp_script=$0.tmp
+echo "tmp_script: $tmp_script"
+
+> $tmp_script
 
 for sample in $(echo $samples)
 do
@@ -38,11 +44,14 @@ do
 	# Deduce the first mates
 	R1files=$(echo $R2files | sed -e 's/_R2_/_R1_/g')
 #	echo -e "R1files: $(echo $R1files | wc -w)"
-	echo "cat $R1files > $R1outfile"
-	cat $R1files > $R1outfile
-	echo "cat $R2files > $R2outfile"
-	cat $R2files > $R2outfile
+	echo "cat $R1files > $R1outfile" >> $tmp_script
+	echo "cat $R2files > $R2outfile" >> $tmp_script
 done
+
+echo "parallel -j $threads :::: $tmp_script"
+parallel -j $threads :::: $tmp_script
+
+rm $tmp_script
 
 echo "Completed."
 

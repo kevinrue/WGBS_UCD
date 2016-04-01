@@ -42,3 +42,4 @@ do
 	fastqc --quiet --nogroup --extract --threads $threads --outdir $outdir/$batch $fastqs
 done
 
+echo "Completed."

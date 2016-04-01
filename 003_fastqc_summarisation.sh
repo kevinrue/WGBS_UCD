@@ -55,3 +55,5 @@ do
 		}' $summaryfile >> $CSVfile
 	done
 done
+
+echo "Completed."
