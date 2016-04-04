@@ -28,7 +28,7 @@
 #009
 
 # TODO Collate trimming statistics
-#010
+./010_trimgalore_summarisation.sh trimgalore > out.010
 
 # TODO Align trimmed reads of bisulfite libraries
-./011_bismark.sh
+./011_bismark.sh bostaurus trimgalore bismark 4 tmp_bismark > out.011
