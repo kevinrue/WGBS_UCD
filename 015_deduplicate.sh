@@ -34,9 +34,10 @@ do
 	echo "paired: $counts_paired"
 	echo "unpaired: $counts_unpaired"
 	echo "single: $counts_single"
-	cmd=""
+	cmd="deduplicate_bismark --bam"
 	if [ $counts_paired -gt 0 ]
 	then
+		cmd="$cmd -p"
 		echo "parallel -j $threads --xapply $cmd -p ::: $bams_paired"
 		time(
 			parallel -j $threads --xapply $cmd -p ::: $bams_paired
@@ -44,6 +45,7 @@ do
 	fi
 	if [ $counts_unpaired -gt 0 ]
 	then
+		cmd="$cmd -s"
 		echo "parallel -j $threads --xapply $cmd -s ::: $bams_unpaired"
 		time(
 			parallel -j $threads --xapply $cmd -p ::: $bams_unpaired
@@ -51,9 +53,12 @@ do
 	fi
 	if [ $counts_single -gt 0 ]
 	then
+		cmd="$cmd -s"
 		echo "parallel -j $threads --xapply $cmd -s ::: $bams_single"
 		time(
 			parallel -j $threads --xapply $cmd -p ::: $bams_single
 		)
 	fi
 done
+
+echo "Completed."
