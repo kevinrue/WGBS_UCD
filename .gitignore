@@ -25,7 +25,7 @@ fastqc_trimmed
 fastqc_aligned
 
 # Trimming files
-trim_galore
+trimgalore
 
 # Alignment files
 bismark
