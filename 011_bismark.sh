@@ -61,3 +61,5 @@ do
 		$cmd_run
 	)
 done
+
+echo "Completed."
