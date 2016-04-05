@@ -124,7 +124,7 @@ $pm_CpG\",\"$pm_CHG\",\"$pm_CHH\",\"$pm_unk"
 }
 
 echo "\"Batch\",\"Identifier\",\"Filename\",\"Sample\",\"Treatment\",\
-\"Infection\",\"Lane\",\"ReadIn\",\"Unique\",\"Efficiency\",\"Unaligned\",\
+\"Infection\",\"ReadIn\",\"Unique\",\"Efficiency\",\"Unaligned\",\
 \"Multimap\",\"SeqIssue\",\"OT\",\"CTOT\",\"CTOB\",\"OB\",\"MethCpG\",\
 \"MethCHG\",\"MetCHH\",\"MethUnk\",\"UnmethCpG\",\"UnmethCHG\",\"UnmetCHH\",\
 \"UnmethUnk\",\"MethPctCpG\",\"MethPctCHG\",\"MethPctCHH\",\"MethPctUnk\"\
@@ -136,7 +136,7 @@ do
 	# Identify the batch to annotate the output metrics
 	batch=$(basename $folder)
 	echo "batch: $batch"
-	# Identify all the forward reads in the folder
+	# Identify all the report files in the folder
 	report1s=$(find $folder -name '*_report.txt')
 	echo -e "folders (next line):\n$report1s"
 	for report1 in $report1s
@@ -145,7 +145,8 @@ do
 		filename=$(basename $report1)
 		# Extract sample information from the filename
 		identifier=$(echo $filename | perl -pe 's/^(.*)_R1.*/\1/')
-		sample=$(echo $filename | perl -pe 's/^([CM]{1}[[:digit:]]{1,2}).*/\1/')
+		sample=$(echo $filename | \
+			perl -pe 's/^([CM]{1}[[:digit:]]{1,2})_.*/\1/')
 		#echo "sample: $sample"
 		treatment=$(echo $filename | awk '{
 			if ($0 ~ /_NOT_BS_/){t="NOT BS"}
@@ -157,12 +158,10 @@ do
 			else{i="M. bovis"}
 			print i}' )
 #		echo "infection: $infection"
-		lane=$(echo $filename | perl -pe 's/.*(L[[:digit:]]{3}).*/\1/')
-#		echo "lane: $lane"
 		# Extract information for the forward read
 		info=$(extract_info $report1)
-		
+#		echo "info: $info"
 		echo "\"$batch\",\"$identifier\",\"$filename\",\"$sample\",\"\
-$treatment\",\"$infection\",\"$lane\",\"$info\"" >> $CSVfile
+$treatment\",\"$infection\",\"$info\"" >> $CSVfile
 	done
 done
