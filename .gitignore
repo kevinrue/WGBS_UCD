@@ -30,6 +30,9 @@ trimgalore
 # Alignment files
 bismark
 
+# Extracted methylation calls
+extract
+
 # Temp files
 *~
 tmp_bismark
