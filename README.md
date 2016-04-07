@@ -17,4 +17,4 @@ The pipeline currently includes:
 
 ## Important notes
 
-- Bismark: using v0.15.0 cloned from [GitHub](https://github.com/FelixKrueger/Bismark) to benefit of a bug fix allowing the proper use of the `--cytosine_report` option of the script `bismark_methylation_extractor`
+- Bismark: using v0.15.0 cloned from [GitHub](https://github.com/FelixKrueger/Bismark) to benefit of a recent bug fix allowing the proper use of the `--cytosine_report` option of the script `bismark_methylation_extractor`. The bug fix is **not yet** available in the version available on the [Bismark website](http://www.bioinformatics.babraham.ac.uk/projects/download.html#bismark)

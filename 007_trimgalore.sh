@@ -45,7 +45,7 @@ do
 	cmd="trim_galore"
 	if [ $paired -gt 0 ]
 	then
-		cmd="$cmd --paired --retain_unpaired"
+		cmd="$cmd --paired"
 	fi
 	cmd="$cmd --output_dir $outdir/$batch"
 	fastq1s=$(echo $fastq1s | xargs)
