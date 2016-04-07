@@ -20,7 +20,7 @@ log
 out*
 
 # Quality control files
-fastqc
+fastqc_raw
 fastqc_trimmed
 fastqc_aligned
 
@@ -32,6 +32,7 @@ bismark
 
 # Extracted methylation calls
 extract
+extract_refined
 
 # Temp files
 *~
