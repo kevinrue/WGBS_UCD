@@ -54,6 +54,12 @@
 # Extract methylation calls from deduplicated aligned reads / pairs
 ./018_extractor.sh bismark extract 8 > out.018
 
+# Based on the M-bias plots
+# Extract methylation calls again ignoring 7 bp from the 5' of each mate
+./018_extractor.sh bismark extract 4 --ignore 7 --ignore_r2 7  > out.018.refined
+
+# Sort, add read group, and index BAM files.
+./019_sort_index.sh bismark/Merged 12 > out.019
 
 
 
