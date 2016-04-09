@@ -28,7 +28,7 @@ BAMsorted=$(echo $BAMfiles | perl -pe 's/.bam/_sorted.bam/g')
 BAMrg=$(echo $BAMfiles | perl -pe 's/.bam/_RG.bam/g')
 
 cmd_sort="samtools sort -o"
-cmd_rg="samtools addreplacerg -o"
+cmd_merge="samtools merged -r-o"
 cmd_index="samtools index"
 if [ $count -gt 0 ];
 then
