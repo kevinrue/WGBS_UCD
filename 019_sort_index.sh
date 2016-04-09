@@ -24,33 +24,37 @@ echo -e "BAMfiles (next line):\n$BAMfiles"
 count=$(echo $BAMfiles | wc -w)
 
 BAMfiles=$(echo $BAMfiles | xargs)
-BAMsorted=$(echo $BAMfiles | perl -pe 's/.bam/_sorted.bam/g')
-BAMrg=$(echo $BAMfiles | perl -pe 's/.bam/_RG.bam/g')
+BAMsortedRG=$(echo $BAMfiles | perl -pe 's/.bam/_picard.bam/g')
+RGIDs=$(basename $BAMfiles | perl -pe 's/([CM][[:digit:]]{1,2}).*/\1/g')
+echo -e "RGSMs (next line):\n$RGSMs"
+RGPUs=$(basename $BAMfiles | perl -pe 's/.*([ATGC]{6}).*/\1/g')
+echo -e "RGPUs (next line):\n$RGPUs"
+exit
 
 cmd_sort="samtools sort -o"
-cmd_merge="samtools merged -r-o"
-cmd_index="samtools index"
+cmd_picard="java -jar picard.jar AddOrReplaceReadGroups \
+    I={1} \
+    O={2} \
+    SORT_ORDER=coordinate \
+    RGID={3} \
+    RGLB={3} \
+    RGPL=illumina \
+    RGPU={4} \
+    RGSM={3}"
+
 if [ $count -gt 0 ];
 then
-
-	echo "parallel -j $threads --xapply $cmd_sort ::: $BAMsorted ::: $BAMfiles"
+$
+	echo "parallel -j $threads --xapply $cmd_picard ::: $BAMfiles ::: $BAMsortedRG"
 #	time(
 #		parallel -j $threads --xapply $cmd_sort ::: $BAMsorted ::: $BAMfiles
 #	)
-	
-	echo "parallel -j $threads --xapply $cmd_rg ::: $BAMrg ::: $BAMsorted"
-	time(
-		parallel -j $threads --xapply $cmd_rg ::: $BAMrg ::: $BAMsorted
-	)
-	
-	echo "parallel -j $threads --xapply $cmd_index ::: $BAMrg"
-	time(
-		parallel -j $threads --xapply $cmd_index ::: $BAMrg
-	)
-	
-	echo "rm $BAMsorted"
-	rm $BAMsorted
-	
+
+	echo "parallel -j $threads --xapply $cmd_index ::: $BAMsortedRG"
+#	time(
+#		parallel -j $threads --xapply $cmd_index ::: $BAMrg
+#	)
+
 fi
 
 echo "Completed."
