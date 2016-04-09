@@ -28,10 +28,10 @@ BAMfiles=$(echo $BAMfiles | xargs)
 
 BAMsortedRG=$(echo $BAMfiles | perl -pe 's/.bam/_picard.bam/g')
 
-RGIDs=$(basename -a $BAMfiles | perl -pe 's/([CM][[:digit:]]{1,2}).*/\1/g')
+RGIDs=$(basename -a $BAMfiles | xargs | perl -pe 's/([CM][[:digit:]]{1,2}).*/\1/g')
 echo -e "RGIDs (next line):\n$RGIDs"
 
-RGPUs=$(basename -a $BAMfiles | perl -pe 's/.*([ATGC]{6}).*/\1/g')
+RGPUs=$(basename -a $BAMfiles | xargs | perl -pe 's/.*([ATGC]{6}).*/\1/g')
 echo -e "RGPUs (next line):\n$RGPUs"
 
 cmd_picard="java -jar picard.jar AddOrReplaceReadGroups \
@@ -48,8 +48,8 @@ cmd_index="samtools index"
 
 if [ $count -gt 0 ];
 then
-$
-	echo "parallel -j $threads --xapply $cmd_picard ::: $BAMfiles ::: $BAMsortedRG ::: $RGIDs ::: $RGPU"
+
+	echo "parallel -j $threads --xapply $cmd_picard ::: $BAMfiles ::: $BAMsortedRG ::: $RGIDs ::: $RGPUs"
 #	time(
 #		parallel -j $threads --xapply $cmd_sort ::: $BAMsorted ::: $BAMfiles
 #	)
