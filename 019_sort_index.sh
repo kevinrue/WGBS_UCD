@@ -4,7 +4,7 @@ echo "$0"
 echo "$(date -I)"
 
 if [ $# -lt 2 ]; then
-	echo "Usage: $0 <rootdir> <threads> "
+	echo "Usage: $0 <rootdir> <threads> [picard.jar]"
 	exit 1
 fi
 
@@ -17,6 +17,11 @@ rootdir=$1
 echo "rootdir: $rootdir"
 threads=$2
 echo "threads: $threads"
+picardJAR=$3
+if [ -z $picardJAR ]; then
+    picardJAR="picard.jar"
+fi
+echo "picardJAR: $picardJAR"
 
 BAMfiles=$(find $rootdir -name "*.deduplicated.bam")
 echo -e "BAMfiles (next line):\n$BAMfiles"
