@@ -39,7 +39,7 @@ echo -e "RGIDs (next line):\n$RGIDs"
 RGPUs=$(basename -a $BAMfiles | perl -pe 's/.*([ATGC]{6}).*/\1/g' | xargs)
 echo -e "RGPUs (next line):\n$RGPUs"
 
-cmd_picard="java -jar picard.jar AddOrReplaceReadGroups \
+cmd_picard="java -jar $picardJAR AddOrReplaceReadGroups \
     I={1} \
     O={2} \
     SORT_ORDER=coordinate \
