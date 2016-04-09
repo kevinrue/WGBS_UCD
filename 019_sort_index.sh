@@ -50,14 +50,14 @@ if [ $count -gt 0 ];
 then
 
 	echo "parallel -j $threads --xapply $cmd_picard ::: $BAMfiles ::: $BAMsortedRG ::: $RGIDs ::: $RGPUs"
-#	time(
-#		parallel -j $threads --xapply $cmd_sort ::: $BAMsorted ::: $BAMfiles
-#	)
+	time(
+		parallel -j $threads --xapply $cmd_picard ::: $BAMfiles ::: $BAMsortedRG ::: $RGIDs ::: $RGPUs
+	)
 
 	echo "parallel -j $threads --xapply $cmd_index ::: $BAMsortedRG"
-#	time(
-#		parallel -j $threads --xapply $cmd_index ::: $BAMrg
-#	)
+	time(
+		parallel -j $threads --xapply $cmd_index ::: $BAMsortedRG
+	)
 
 fi
 
