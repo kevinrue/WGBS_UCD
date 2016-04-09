@@ -20,17 +20,20 @@ echo "threads: $threads"
 
 BAMfiles=$(find $rootdir -name "*.deduplicated.bam")
 echo -e "BAMfiles (next line):\n$BAMfiles"
-BAMsortedRG=$(echo $BAMfiles | perl -pe 's/.bam/_picard.bam/g')
-
-RGIDs=$(basename $BAMfiles | perl -pe 's/([CM][[:digit:]]{1,2}).*/\1/g')
-echo -e "RGSMs (next line):\n$RGSMs"
-RGPUs=$(basename $BAMfiles | perl -pe 's/.*([ATGC]{6}).*/\1/g')
-echo -e "RGPUs (next line):\n$RGPUs"
 
 count=$(echo $BAMfiles | wc -w)
 echo "count $count"
 
 BAMfiles=$(echo $BAMfiles | xargs)
+
+BAMsortedRG=$(echo $BAMfiles | perl -pe 's/.bam/_picard.bam/g')
+
+RGIDs=$(basename -a $BAMfiles | perl -pe 's/([CM][[:digit:]]{1,2}).*/\1/g')
+echo -e "RGSMs (next line):\n$RGSMs"
+
+RGPUs=$(basename -a $BAMfiles | perl -pe 's/.*([ATGC]{6}).*/\1/g')
+echo -e "RGPUs (next line):\n$RGPUs"
+
 exit
 
 cmd_sort="samtools sort -o"
