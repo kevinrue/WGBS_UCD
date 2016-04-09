@@ -29,7 +29,7 @@ BAMfiles=$(echo $BAMfiles | xargs)
 BAMsortedRG=$(echo $BAMfiles | perl -pe 's/.bam/_picard.bam/g')
 
 RGIDs=$(basename -a $BAMfiles | perl -pe 's/([CM][[:digit:]]{1,2}).*/\1/g')
-echo -e "RGSMs (next line):\n$RGSMs"
+echo -e "RGIDs (next line):\n$RGIDs"
 
 RGPUs=$(basename -a $BAMfiles | perl -pe 's/.*([ATGC]{6}).*/\1/g')
 echo -e "RGPUs (next line):\n$RGPUs"
