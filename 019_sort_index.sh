@@ -34,9 +34,6 @@ echo -e "RGIDs (next line):\n$RGIDs"
 RGPUs=$(basename -a $BAMfiles | perl -pe 's/.*([ATGC]{6}).*/\1/g')
 echo -e "RGPUs (next line):\n$RGPUs"
 
-exit
-
-cmd_sort="samtools sort -o"
 cmd_picard="java -jar picard.jar AddOrReplaceReadGroups \
     I={1} \
     O={2} \
@@ -47,10 +44,12 @@ cmd_picard="java -jar picard.jar AddOrReplaceReadGroups \
     RGPU={4} \
     RGSM={3}"
 
+cmd_index="samtools index"
+
 if [ $count -gt 0 ];
 then
 $
-	echo "parallel -j $threads --xapply $cmd_picard ::: $BAMfiles ::: $BAMsortedRG"
+	echo "parallel -j $threads --xapply $cmd_picard ::: $BAMfiles ::: $BAMsortedRG ::: $RGIDs ::: $RGPU"
 #	time(
 #		parallel -j $threads --xapply $cmd_sort ::: $BAMsorted ::: $BAMfiles
 #	)
