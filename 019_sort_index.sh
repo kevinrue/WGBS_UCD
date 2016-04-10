@@ -11,8 +11,6 @@ fi
 cwd=`pwd`
 echo "cwd: $cwd"
 
-md5file=md5.txt
-
 rootdir=$1
 echo "rootdir: $rootdir"
 threads=$2
