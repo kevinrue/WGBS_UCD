@@ -21,7 +21,7 @@ The pipeline currently includes {scripts}:
 - :white_check_mark: Control quality of deduplicated BAM files ([FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)) {016-017}
 - :white_check_mark: Report of deduplication statistics {018}
 - :white_check_mark: Extraction of methylation calls from deduplicated aligned read pairs ([Bismark](http://www.bioinformatics.babraham.ac.uk/projects/bismark/)) {019}
-- Upcoming :red_circle: Report of alignment statistics {020}
+- Upcoming :red_circle: Report of methylation extraction statistics {020}
 - :white_check_mark: Addition of read group, sorting and indexing of BAM files {021}
 - Upcoming :red_circle: Combined Bismark report in HTML format ([Bismark](http://www.bioinformatics.babraham.ac.uk/projects/bismark/)) {022}
 
