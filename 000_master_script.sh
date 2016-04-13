@@ -1,36 +1,36 @@
-#!/bin/bash
+l#!/bin/bash
 
 # Check whether the md5 signature matches the original one
 ./001_md5.sh rawdata > out.001
 
-# TODO Control quality of the raw reads
+# Control quality of the raw reads
 ./002_fastqc.sh rawdata '*.fastq.gz' fastqc 12 > out.002
 
-# TODO Collate the output of FastQC in a friendly CSV file
+# Collate the output of FastQC in a friendly CSV file
 ./003_fastqc_summarisation.sh rawdata > out.003
 
 # Merge all paired Fastq files
 ./004_merge_fastq.sh rawdata rawdata/Merged 12 > out.004
 
-# TODO Control quality of the merged raw reads
-#005
+# Control quality of the merged raw reads
+./005_fastqc.sh rawdata/Merged *fastq.gz fastqc_merged 12 > out.005
 
-# TODO Collate the output of FastQC in a friendly CSV file
-#006
+# Collate the output of FastQC in a friendly CSV file
+./006_fastqc_summarisation.sh fastqc_merged > out.006
 
 # Trim adapter and low-quality bases
 ./007_trimgalore.sh trimgalore 12 rawdata/Merged > out.007
 
-# TODO Control quality of the trimmed reads
-#008
+# Control quality of the trimmed reads
+./008_fastqc.sh trimgalore/Merged *fq.gz fastqc_trimmed 12 > out.008
 
-# TODO Collate the output of FastQC in a friendly CSV file
-#009
+# Collate the output of FastQC in a friendly CSV file
+./009_fastqc_summarisation.sh fastqc_trimmed > out.009
 
 # Collate trimming statistics
 ./010_trimgalore_summarisation.sh trimgalore > out.010
 
-# TODO Align trimmed reads of bisulfite libraries
+# Align trimmed reads of bisulfite libraries
 ./011_bismark.sh bostaurus trimgalore bismark 4 tmp_bismark > out.011
 
 # TODO Control quality of the aligned reads
@@ -45,11 +45,11 @@
 # Deduplicate aligned reads / pairs
 ./015_deduplicate.sh bismark 8 > out.015
 
-# TODO Control quality of the deduplicated reads
-#016
+# Control quality of the deduplicated reads
+./016_fastqc.sh bismark/Merged *deduplicated.bam fastqc_deduplicated 12 > out.016
 
-# TODO Collate the output of FastQC in a friendly CSV file
-#017
+# Collate the output of FastQC in a friendly CSV file
+./017_fastqc_summarisation.sh fastqc_deduplicated > out.017
 
 # Extract methylation calls from deduplicated aligned reads / pairs
 ./018_extractor.sh bismark extract 8 > out.018

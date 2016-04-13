@@ -137,7 +137,7 @@ do
 	batch=$(basename $folder)
 	echo "batch: $batch"
 	# Identify all the report files in the folder
-	report1s=$(find $folder -name '*_report.txt')
+	report1s=$(find $folder -name '*PE_report.txt')
 	echo -e "folders (next line):\n$report1s"
 	for report1 in $report1s
 	do
