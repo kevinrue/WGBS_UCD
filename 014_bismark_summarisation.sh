@@ -28,7 +28,7 @@ if [ ! -e $outfolder ]; then
 fi
 
 # List unique folders that contain report files
-folders=`find $rootdir -name '*_report.txt' -exec dirname {} \; | \
+folders=`find $rootdir -name '*PE_report.txt' -exec dirname {} \; | \
 	sort | uniq`
 echo -e "folders (next line):\n$folders"
 
