@@ -36,10 +36,18 @@ bismark
 extract
 extract_refined
 
+# R analyses
+bsseq
+
 # SeqMonk analyses
 seqmonk_project
+
+# IGV sessions
+IGV_session
 
 # Temp files
 *~
 tmp_bismark
 tmp_picard
+.Rproj.user
+*.Rproj
