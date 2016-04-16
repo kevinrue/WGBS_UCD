@@ -137,11 +137,41 @@ close(gz1)
 # Raw statistics ----------------------------------------------------------
 
 meanCov.stranded <- colMeans(getCoverage(BSseq = BS.combined))
-meanCov.stranded
+as.data.frame(meanCov.stranded)
 summary(meanCov.stranded)
+
+# Collapse information from both both strands -----------------------------
 
 BS.unstranded <- strandCollapse(BSseq = BS.combined, shift = TRUE)
 saveRDS(object = BS.unstranded, file = file.path(outdir, 'BS.unstranded.rds'))
 # BS.unstranded <- readRDS(file.path(outdir, 'BS.unstranded.rds'))
 
 rm(BS.combined)
+
+# Statistics of strand-collapsed calls ------------------------------------
+
+meanCov.unstranded <- colMeans(getCoverage(BSseq = BS.unstranded))
+as.data.frame(meanCov.unstranded)
+summary(meanCov.unstranded)
+
+# Discard CG with zero coverage -------------------------------------------
+
+sum(rowSums(getCoverage(BSseq = BS.unstranded)) == 0)
+sum(rowSums(getCoverage(BSseq = BS.unstranded)) > 0) / nrow(BS.unstranded)
+
+BS.nonEmpty <- BS.unstranded[rowSums(getCoverage(BSseq = BS.unstranded)) > 0,]
+saveRDS(object = BS.nonEmpty, file = file.path(outdir, 'BS.nonEmpty.rds'))
+# BS.nonEmpty <- readRDS(file.path(outdir, 'BS.nonEmpty.rds'))
+
+rm(BS.unstranded)
+
+dim(BS.nonEmpty)
+
+# Statistics of non-zero CpGs ------------------------------------
+
+meanCov.nonEmpty <- colMeans(getCoverage(BSseq = BS.nonEmpty))
+as.data.frame(meanCov.nonEmpty)
+summary(meanCov.nonEmpty)
+
+# Download CG islands -----------------------------------------------------
+
