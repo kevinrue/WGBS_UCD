@@ -53,7 +53,7 @@ l#!/bin/bash
 ./016_sort_index.sh bismark/Merged 12 > out.016
 
 # TODO Collate HTML report for Bismark
-#017
+./017_bismark_report.sh "bismark extract_refined" reports_bismark 12 > out.017
 
 
 
