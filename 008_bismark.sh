@@ -43,7 +43,7 @@ do
 	if [ ! -e $outdir/$batch ]; then
 		mkdir -pv $outdir/$batch
 	fi
-	cmd="bismark $genome/ --bowtie2 \
+	cmd="bismark $genome/ --bowtie2 --nucleotide_coverage \
 		--output_dir $outdir/$batch -p $threads --temp_dir $tempdir"
 	# Identify all the first mates NOT_BS reads in the folder
 	# C8_TGACCA_R1_merged_val_1.fq.gz
