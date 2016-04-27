@@ -6,6 +6,8 @@ library(data.table)
 library(BiocParallel)
 library(tools)
 library(broom)
+library(ggbio)
+library(BSgenome.Btaurus.UCSC.bosTau6)
 
 # Set parameters ----------------------------------------------------------
 
@@ -16,10 +18,6 @@ Cpg.file.pattern <- 'CpG_report.txt.gz'
 CPUs <- 2
 
 outdir <- 'bsseq'
-
-M.file <- 'M.txt.gz'
-Cov.file <- 'Cov.txt.gz'
-gr.file <- 'gr.txt.gz'
 
 CpGislands.file <- "bostaurus/Bt_UMD31_CpG_islands_unmasked.bed"
 
@@ -53,9 +51,20 @@ pdata <- data.frame(
 )
 write.csv(x = pdata, file = file.path(outdir, 'phenodata.csv'), row.names = FALSE)
 
+# Import methylation calls ------------------------------------------------
+
+# Code only working in the current devel branch
+# BS.combined2 <- read.bismark(
+#   files = file.path(CpG.folder, pdata$Filename[1:2]),
+#   sampleNames = c("A","B"),
+#   rmZeroCov = FALSE,
+#   strandCollapse = FALSE,
+#   fileType = "cytosineReport",
+#   verbose = TRUE)
+
 read.CpGreport.gz <- function(
   index, pData, folder = ".", sample = "Sample", file = "Filename"
-  ){
+){
   fread_cmd <- paste("gunzip -c", file.path(folder, pData[index, file]))
   message(fread_cmd)
   dat <- as.data.frame(fread(fread_cmd))
@@ -75,28 +84,6 @@ read.CpGreport.gz <- function(
     gr = gr)
 }
 
-# Import methylation calls ------------------------------------------------
-
-# Issue with read.bismark
-# sampleNames
-# Sent an email to peter.hickey@gmail.com
-
-# BS.combined1 <- read.bismark(
-#   files = file.path(CpG.folder, pdata$Filename[1]),
-#   sampleNames = pdata$Sample[1],
-#   rmZeroCov = FALSE,
-#   strandCollapse = FALSE,
-#   fileType = "cytosineReport",
-#   verbose = TRUE)
-# 
-# BS.combined2 <- read.bismark(
-#   files = file.path(CpG.folder, pdata$Filename[1:2]),
-#   sampleNames = c("A","B"),
-#   rmZeroCov = FALSE,
-#   strandCollapse = FALSE,
-#   fileType = "cytosineReport",
-#   verbose = TRUE)
-
 BS.list <- bplapply(
   1:nrow(pdata), 
   read.CpGreport.gz,
@@ -111,7 +98,6 @@ saveRDS(object = BS.combined, file = file.path(outdir, 'BS.combined.rds'))
 
 rm(BS.list)
 
-# TODO: clean up code and apply to other slots if file is of decent size
 gz1 <- gzfile(file.path(outdir, M.file), "w")
 write.table(
   x = getBSseq(BSseq = BS.combined, type = "M"),
@@ -202,10 +188,12 @@ CpG.gr <- GRanges(
 
 rm(CpG.unmasked)
 
+saveRDS(object = CpG.gr, file = file.path(outdir, 'CpG.gr.rds'))
+
 # Count methylations/calls per CpG island ---------------------------------
 
 # seqlevels(CpG.gr)
-# Rename BS.nonEmpty contigs to match names in CpG.gr
+# # Rename BS.nonEmpty contigs to match names in CpG.gr
 # seqlevels(BS.nonEmpty) <- gsub(
 #   pattern = '^GJ',
 #   replacement = 'Un_GJ',
@@ -265,18 +253,3 @@ rm(CpG.unmasked)
 #   x = -log10(sort(paired.t.test$p.value)),
 #   y = -log10(sort(runif(n = sum(!is.na(paired.t.test$p.value)), min = 0, max = 1))))
 # rm(paired.t.test)
-
-# Comparison CpG islands vs shores ----------------------------------------
-
-# Consider all CG, even not covered by a read (BS.unstranded)
-# Calculate the coverage of each CpG island and its shores
-# (Define the shores as length/2 of the island each side)
-# Plot, and define a cutoff to retain a reasonable number of CG islands
-# For the remaining islands, get their mean methylation level
-# get the mean methylation level of the shores (combined)
-# for that, combine their methylation calls and divide by their combined coverage
-# Calculate the paired difference between replicates (M. bovis - control)
-# Calculate mean, mean-sd, mean+sd
-# Sort by increasing mean difference
-# Plot mean +/-sd represented by error bars using ggplot2 
-
