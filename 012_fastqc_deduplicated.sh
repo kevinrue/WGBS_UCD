@@ -122,7 +122,7 @@ fi
 
 echo "Collating FastQC reports.."
 
-echo "\"Value\",\"QC\",\"File\",\"Sample\",\"Read\",\"Treatment\",\
+echo "\"Value\",\"QC\",\"File\",\"Sample\",\"Treatment\",\
 \"Infection\"" > $CSVfile
 
 for folder in `ls $outdir`
@@ -133,7 +133,7 @@ do
 		awk 'BEGIN {FS="\t"; OFS="\",\""} \
 		\
 		{
-			nf=split($3,fs,"_");
+			nf=split($3,fs,"_")
 			if ($3 ~ /NOT_BS/){
 				t="NOT BS"}
 			else{
@@ -144,7 +144,7 @@ do
 			else{
 				i="M. bovis"
 			}
-			print "\""$1,$2,$3,fs[1],fs[nf-6],t,i"\""
+			print "\""$1,$2,$3,fs[1],t,i"\""
 		}' $summaryfile >> $CSVfile
 	done
 done
