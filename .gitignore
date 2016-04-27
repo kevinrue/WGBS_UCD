@@ -36,6 +36,9 @@ bismark
 extract
 extract_refined
 
+# Bismark reports
+reports_bismark
+
 # R analyses
 bsseq
 
