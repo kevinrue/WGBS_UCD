@@ -2,11 +2,8 @@
 # Load libraries ----------------------------------------------------------
 
 library(bsseq)
-# library(data.table)
-# library(BiocParallel)
-# library(tools)
-# library(broom)
-# library(ggbio)
+library(data.table)
+library(BiocParallel)
 
 # Set parameters ----------------------------------------------------------
 
