@@ -101,7 +101,7 @@ fi
 
 echo "Collating FastQC reports.."
 
-echo "\"Value\",\"QC\",\"File\",\"Sample\",\"Read\",\"Treatment\",\
+echo "\"Value\",\"QC\",\"File\",\"Sample\",\"Treatment\",\
 \"Infection\"" > $CSVfile
 
 for folder in `ls $outdir`
@@ -123,7 +123,7 @@ do
 			else{
 				i="M. bovis"
 			}
-			print "\""$1,$2,$3,fs[1],fs[nf-3],t,i"\""
+			print "\""$1,$2,$3,fs[1],t,i"\""
 		}' $summaryfile >> $CSVfile
 	done
 done
