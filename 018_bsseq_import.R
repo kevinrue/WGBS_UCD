@@ -2,12 +2,11 @@
 # Load libraries ----------------------------------------------------------
 
 library(bsseq)
-library(data.table)
-library(BiocParallel)
-library(tools)
-library(broom)
-library(ggbio)
-library(BSgenome.Btaurus.UCSC.bosTau6)
+# library(data.table)
+# library(BiocParallel)
+# library(tools)
+# library(broom)
+# library(ggbio)
 
 # Set parameters ----------------------------------------------------------
 
@@ -18,8 +17,6 @@ Cpg.file.pattern <- 'CpG_report.txt.gz'
 CPUs <- 2
 
 outdir <- 'bsseq'
-
-CpGislands.file <- "bostaurus/Bt_UMD31_CpG_islands_unmasked.bed"
 
 # Create required folders -------------------------------------------------
 
@@ -98,36 +95,38 @@ saveRDS(object = BS.combined, file = file.path(outdir, 'BS.combined.rds'))
 
 rm(BS.list)
 
-gz1 <- gzfile(file.path(outdir, M.file), "w")
-write.table(
-  x = getBSseq(BSseq = BS.combined, type = "M"),
-  file = gz1,
-  row.names = FALSE)
-close(gz1)
-
-gz1 <- gzfile(file.path(outdir, Cov.file), "w")
-write.table(
-  x = getBSseq(BSseq = BS.combined, type = "Cov"),
-  file = gz1,
-  row.names = FALSE)
-close(gz1)
-
-gz1 <- gzfile(file.path(outdir, gr.file), "w")
-write.table(
-  x = data.frame(
-    chr = seqnames(getBSseq(BSseq = BS.combined, type = "gr")),
-    pos = start(getBSseq(BSseq = BS.combined, type = "gr")),
-    strand = strand(getBSseq(BSseq = BS.combined, type = "gr"))
-  ),
-  file = gz1,
-  row.names = FALSE)
-close(gz1)
+# gz1 <- gzfile(file.path(outdir, M.file), "w")
+# write.table(
+#   x = getBSseq(BSseq = BS.combined, type = "M"),
+#   file = gz1,
+#   row.names = FALSE)
+# close(gz1)
+# 
+# gz1 <- gzfile(file.path(outdir, Cov.file), "w")
+# write.table(
+#   x = getBSseq(BSseq = BS.combined, type = "Cov"),
+#   file = gz1,
+#   row.names = FALSE)
+# close(gz1)
+# 
+# gz1 <- gzfile(file.path(outdir, gr.file), "w")
+# write.table(
+#   x = data.frame(
+#     chr = seqnames(getBSseq(BSseq = BS.combined, type = "gr")),
+#     pos = start(getBSseq(BSseq = BS.combined, type = "gr")),
+#     strand = strand(getBSseq(BSseq = BS.combined, type = "gr"))
+#   ),
+#   file = gz1,
+#   row.names = FALSE)
+# close(gz1)
 
 # Raw statistics ----------------------------------------------------------
 
-meanCov.stranded <- colMeans(getCoverage(BSseq = BS.combined))
-as.data.frame(meanCov.stranded)
+meanCov.stranded <- getCoverage(BSseq = BS.combined, what = "perRegionAverage")
+covStats <- as.data.frame(meanCov.stranded)
+write.csv(x = covStats, file = file.path(outdir, "covStats.csv"))
 summary(meanCov.stranded)
+rm(meanCov.stranded)
 
 # Collapse information from both both strands -----------------------------
 
@@ -139,117 +138,41 @@ rm(BS.combined)
 
 # Statistics of strand-collapsed calls ------------------------------------
 
-meanCov.unstranded <- colMeans(getCoverage(BSseq = BS.unstranded))
-as.data.frame(meanCov.unstranded)
+meanCov.unstranded <- getCoverage(
+  BSseq = BS.unstranded, what = "perRegionAverage")
+covStats <- cbind(covStats, as.data.frame(meanCov.unstranded))
+write.csv(x = covStats, file = file.path(outdir, "covStats.csv"))
 summary(meanCov.unstranded)
+rm(meanCov.unstranded)
 
 # Discard CG with zero coverage -------------------------------------------
 
 # sum(rowSums(getCoverage(BSseq = BS.unstranded)) == 0)
 # sum(rowSums(getCoverage(BSseq = BS.unstranded)) > 0) / nrow(BS.unstranded)
 # 
-# BS.nonEmpty <- BS.unstranded[rowSums(getCoverage(BSseq = BS.unstranded)) > 0,]
-# saveRDS(object = BS.nonEmpty, file = file.path(outdir, 'BS.nonEmpty.rds'))
-# BS.nonEmpty <- readRDS(file.path(outdir, 'BS.nonEmpty.rds'))
+BS.rmZero <- BS.unstranded[rowSums(getCoverage(BSseq = BS.unstranded)) > 0,]
+saveRDS(object = BS.rmZero, file = file.path(outdir, 'BS.rmZero.rds'))
+# BS.rmZero <- readRDS(file.path(outdir, 'BS.rmZero.rds'))
 
-# rm(BS.unstranded)
+rm(BS.unstranded)
 
-# dim(BS.nonEmpty)
+dim(BS.rmZero)
 
 # Statistics of non-zero CpGs ------------------------------------
 
-# meanCov.nonEmpty <- colMeans(getCoverage(BSseq = BS.nonEmpty))
-# as.data.frame(meanCov.nonEmpty)
-# summary(meanCov.nonEmpty)
-# 
-# pois.fit <- poissonGoodnessOfFit(BSseq = BS.nonEmpty)
-# plot(pois.fit)
-# bino.fit <- binomialGoodnessOfFit(BSseq = BS.nonEmpty)
-# plot(bino.fit)
+meanCov.rmZero <- getCoverage(BSseq = BS.rmZero, what = "perRegionAverage")
+covStats <- cbind(covStats, meanCov.rmZero <- as.data.frame(meanCov.rmZero))
+write.csv(x = covStats, file = file.path(outdir, "covStats.csv"))
+summary(meanCov.rmZero)
+rm(meanCov.rmZero)
 
-# Download CG islands -----------------------------------------------------
+# Testing some functions of the bsseq package -----------------------------
 
-# Manually download CpG islands tracks from:
-# http://genome.ucsc.edu/cgi-bin/hgTables
-# Downloaded both masked and unmasked for testing
-
-CpG.unmasked <- read.table(
-  file = CpGislands.file,
-  header = FALSE,
-  sep = "\t",
-  stringsAsFactors = FALSE)
-
-CpG.gr <- GRanges(
-  seqnames = CpG.unmasked[,1],
-  ranges = IRanges(
-    start = CpG.unmasked[,2],
-    end = CpG.unmasked[,3],
-    names = CpG.unmasked[,4]))
-
-rm(CpG.unmasked)
-
-saveRDS(object = CpG.gr, file = file.path(outdir, 'CpG.gr.rds'))
-
-# Count methylations/calls per CpG island ---------------------------------
-
-# seqlevels(CpG.gr)
-# # Rename BS.nonEmpty contigs to match names in CpG.gr
-# seqlevels(BS.nonEmpty) <- gsub(
-#   pattern = '^GJ',
-#   replacement = 'Un_GJ',
-#   x = seqlevels(BS.nonEmpty))
-# seqlevels(BS.nonEmpty) <- gsub(
-#   pattern = '^',
-#   replacement = 'chr',
-#   x = seqlevels(BS.nonEmpty))
-
-# Subset both objects to overlapping contigs (save memory)
-# seqlevels.intersect <- intersect(
-#   seqlevels(BS.nonEmpty),
-#   seqlevels(CpG.gr)
-# )
-# seqlevels(CpG.gr, force = TRUE) <- seqlevels.intersect
-# seqlevels(BS.nonEmpty, force = TRUE) <- seqlevels.intersect
-
-# For each CpG island, count the number of CG with at least a call
-# CpG.gr$CG.covered <- countOverlaps(query = CpG.gr, subject = BS.nonEmpty)
-
-# CpG.gr[1,]
-# BS.nonEmpty[1,]
-# Find/count methylation calls overlapping CpG islands
-# subsetByOverlaps(query = BS.nonEmpty[1,], subject = CpG.gr[1,])
-# getCoverage(subsetByOverlaps(query = BS.nonEmpty[1,], subject = CpG.gr[1,]))
-# colSums(getCoverage(subsetByOverlaps(query = BS.nonEmpty[1,], subject = CpG.gr[1,])))
-# getBSseq(subsetByOverlaps(query = BS.nonEmpty[1,], subject = CpG.gr[1,]), type = "M")
-# getMeth(subsetByOverlaps(query = BS.nonEmpty[1,], subject = CpG.gr[1,]), type = "raw")
-# colSums(getMeth(subsetByOverlaps(query = BS.nonEmpty[1,], subject = CpG.gr[1,])))
-# tmp.base <- getMeth(BSseq = BS.nonEmpty, regions = CpG.gr, type = "raw", what = "perBase")
-# tmp.region <- getMeth(BSseq = BS.nonEmpty, regions = CpG.gr, type = "raw", what = "perRegion")
-# 
-# Function to test differential methylation level in a paired design
-# Pairs of samples must be ordered: group1rep1, group1rep2, ..., group2rep1, group2rep2, ...
-# region.paired.t.test <- function(x, factor = rep(1:(length(x)/2), 2)){
-#   values1 <- x[1:(length(x)/2)]
-#   values2 <- x[(length(x)/2+1):length(x)]
-#   if (sum(!is.na(values1+values2)) < 2){
-#     return(rep(NA,6))
-#   }
-#   tidy(t.test(
-#     x = values1,
-#     y = values2,
-#     alternative = "two.sided",
-#     paired = TRUE))
-# }
-# 
-# Run the paired t-test on all CpG islands with at least two pairs of samples
-# covered by at least one read
-# region.paired.t.test(x = tmp.region)
-# 
-# paired.t.test <- do.call(
-#   rbind,
-#   apply(X = tmp.region, MARGIN = 1, FUN = region.paired.t.test))
-# QQ-plot
-# plot(
-#   x = -log10(sort(paired.t.test$p.value)),
-#   y = -log10(sort(runif(n = sum(!is.na(paired.t.test$p.value)), min = 0, max = 1))))
-# rm(paired.t.test)
+# goodness of fit statistics for BSSeq objects
+# For each methylation loci, the Poisson goodness of fit statistic tests 
+# whether the coverage (at that loci) is independent and identically Poisson
+# distributed across the samples.
+pois.fit <- poissonGoodnessOfFit(BSseq = BS.rmZero)
+plot(pois.fit)
+bino.fit <- binomialGoodnessOfFit(BSseq = BS.rmZero)
+plot(bino.fit)
