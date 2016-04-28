@@ -142,6 +142,9 @@ write.csv(x = covStats, file = file.path(outdir, "covStats.csv"))
 summary(meanCov.unstranded)
 rm(meanCov.unstranded)
 
+tapply(X = getCoverage(BSseq = BS.unstranded, what = "perRegionAverage"), INDEX = BS.unstranded$Infection, FUN = sum)
+
+
 # Discard CG with zero coverage -------------------------------------------
 
 # sum(rowSums(getCoverage(BSseq = BS.unstranded)) == 0)
