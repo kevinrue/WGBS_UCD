@@ -187,6 +187,31 @@ write.csv(x = covStats, file = file.path(outdir, "covStats.csv"))
 summary(meanCov.rmZero)
 rm(meanCov.rmZero)
 
+# Keep only CG with coverage in all samples -------------------------------
+
+BS.allCovered <- BS.rmZero[rowSums(getCoverage(BSseq = BS.rmZero) > 0) == ncol(BS.rmZero),]
+
+colnames(BS.allCovered)
+sampleNames(BS.allCovered)
+colnames(getCoverage(BS.allCovered))
+sort(colnames(BS.allCovered))
+
+saveRDS(object = BS.allCovered, file = file.path(outdir, 'BS.allCovered.rds'))
+# BS.allCovered <- readRDS(file.path(outdir, 'BS.allCovered.rds'))
+
+rm(BS.rmZero)
+
+dim(BS.allCovered)
+
+# Statistics of CG coverage in all samples --------------------------------
+
+meanCov.allCovered <- getCoverage(
+  BSseq = BS.allCovered, what = "perRegionAverage")
+covStats <- cbind(covStats, as.data.frame(meanCov.allCovered))
+write.csv(x = covStats, file = file.path(outdir, "covStats.csv"))
+summary(meanCov.allCovered)
+rm(meanCov.allCovered)
+
 # Testing some functions of the bsseq package -----------------------------
 
 # goodness of fit statistics for BSSeq objects
