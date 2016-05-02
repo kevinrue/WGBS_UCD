@@ -1,9 +1,9 @@
 
 # Load libraries ----------------------------------------------------------
 
-library(bsseq)
 library(data.table)
 library(BiocParallel)
+library(bsseq)
 
 # Set parameters ----------------------------------------------------------
 
@@ -11,7 +11,7 @@ CpG.folder <- 'extract_refined/Merged'
 
 Cpg.file.pattern <- 'CpG_report.txt.gz'
 
-CPUs <- 2
+CPUs <- 8
 
 outdir <- 'bsseq'
 
@@ -60,7 +60,7 @@ read.CpGreport.gz <- function(
   index, pData, folder = ".", sample = "Sample", file = "Filename"
 ){
   fread_cmd <- paste("gunzip -c", file.path(folder, pData[index, file]))
-  message(fread_cmd)
+  cat(pData[index, sample], ":", fread_cmd, sep = " ", fill = TRUE)
   dat <- as.data.frame(fread(fread_cmd))
   gr <- GRanges(
     seqnames = dat[,1],
@@ -86,6 +86,12 @@ BS.list <- bplapply(
   BPPARAM = MulticoreParam(workers = CPUs))
 
 BS.combined <- combineList(BS.list)
+
+# lapply(X = BS.list, FUN = sampleNames)
+colnames(BS.combined)
+sampleNames(BS.combined)
+colnames(getCoverage(BS.combined))
+sort(colnames(BS.combined))
 
 saveRDS(object = BS.combined, file = file.path(outdir, 'BS.combined.rds'))
 # BS.combined <- readRDS(file.path(outdir, 'BS.combined.rds'))
@@ -128,6 +134,12 @@ rm(meanCov.stranded)
 # Collapse information from both both strands -----------------------------
 
 BS.unstranded <- strandCollapse(BSseq = BS.combined, shift = TRUE)
+
+colnames(BS.unstranded)
+sampleNames(BS.unstranded)
+colnames(getCoverage(BS.unstranded))
+sort(colnames(BS.unstranded))
+
 saveRDS(object = BS.unstranded, file = file.path(outdir, 'BS.unstranded.rds'))
 # BS.unstranded <- readRDS(file.path(outdir, 'BS.unstranded.rds'))
 
@@ -144,6 +156,9 @@ rm(meanCov.unstranded)
 
 tapply(X = getCoverage(BSseq = BS.unstranded, what = "perRegionAverage"), INDEX = BS.unstranded$Infection, FUN = sum)
 
+# Count of non-zero CpG per sample
+colSums(getCoverage(BSseq = BS.unstranded, what = "perBase") > 0) / 1E6
+summary(colSums(getCoverage(BSseq = BS.unstranded, what = "perBase") > 0) / 1E6)
 
 # Discard CG with zero coverage -------------------------------------------
 
