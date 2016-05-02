@@ -166,6 +166,12 @@ summary(colSums(getCoverage(BSseq = BS.unstranded, what = "perBase") > 0) / 1E6)
 # sum(rowSums(getCoverage(BSseq = BS.unstranded)) > 0) / nrow(BS.unstranded)
 # 
 BS.rmZero <- BS.unstranded[rowSums(getCoverage(BSseq = BS.unstranded)) > 0,]
+
+colnames(BS.rmZero)
+sampleNames(BS.rmZero)
+colnames(getCoverage(BS.rmZero))
+sort(colnames(BS.rmZero))
+
 saveRDS(object = BS.rmZero, file = file.path(outdir, 'BS.rmZero.rds'))
 # BS.rmZero <- readRDS(file.path(outdir, 'BS.rmZero.rds'))
 

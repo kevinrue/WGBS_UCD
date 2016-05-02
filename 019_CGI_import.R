@@ -1,5 +1,4 @@
 
-
 # Set parameters ----------------------------------------------------------
 
 CpGislands.file <- "bostaurus/Bt_UMD31_CpG_islands_unmasked.bed"
