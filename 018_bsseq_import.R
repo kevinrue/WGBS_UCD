@@ -11,7 +11,7 @@ CpG.folder <- 'extract_refined/Merged'
 
 Cpg.file.pattern <- 'CpG_report.txt.gz'
 
-CPUs <- 8
+CPUs <- 2
 
 outdir <- 'bsseq'
 
@@ -35,11 +35,17 @@ pdata <- data.frame(
           FUN = "substr", start = 1, stop = 1),
         levels = c("C", "M")))],
     levels = c("Control", "M. bovis")),
-  Animal = as.factor(sapply(
+  Animal = factor(sapply(
     X = sapply(X = strsplit(x = CpG.files, split = '_'), FUN = "[[", 1),
     FUN = "gsub",
     pattern = "[CM]",
-    replacement = "")),
+    replacement = ""),
+    levels = sort(as.numeric(unique(
+      sapply(
+        X = sapply(X = strsplit(x = CpG.files, split = '_'), FUN = "[[", 1),
+        FUN = "gsub",
+        pattern = "[CM]",
+        replacement = ""))))),
   Filename = CpG.files,
   stringsAsFactors = FALSE
 )
