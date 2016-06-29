@@ -13,8 +13,8 @@ min.samples <- 2/3 # proportion
 
 # Import previous data ----------------------------------------------------
 
-BS <- readRDS(file.path(outdir, "BS.unstranded.rds"))
-# BS <- readRDS(file.path(outdir, "BS.rmZero.rds"))
+# BS <- readRDS(file.path(outdir, "BS.unstranded.rds"))
+BS <- readRDS(file.path(outdir, "BS.rmZero.rds"))
 sampleNames(BS)
 colnames(BS)
 colnames(getCoverage(BS))
