@@ -29,7 +29,7 @@ mcols(CGI.gr)[,"AvgCov"] <- rowSums(getCoverage(
   BSseq = BS.unstranded, regions = CGI.gr, what = "perRegionAverage"))
 summary(mcols(CGI.gr)[,"AvgCov"])
 
-saveRDS(object = CGI.gr, file = file.path(outdir, "CGI."))
+saveRDS(object = CGI.gr, file = file.path(outdir, "CGI.gr.rds"))
 
 mcols(CGI.gr)[,"AvgMeth"] <- rowMeans(getMeth(
   BSseq = BS.unstranded, type = "raw", regions = CGI.gr, what = "perRegion"))
