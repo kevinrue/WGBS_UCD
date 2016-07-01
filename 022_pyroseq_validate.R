@@ -3,7 +3,7 @@
 
 library(BSgenome.Btaurus.UCSC.bosTau6)
 # names(BSgenome.Btaurus.UCSC.bosTau6)
-# Note the "chr" prefix (UCSC-style)
+# Note the "chr" prefix (UCSC-style) to trim later
 library(biomaRt)
 library(bsseq)
 library(xlsx)
@@ -70,10 +70,10 @@ NFKB2.seq == sequences[["NFKB2"]]
 # Import methylation calls ------------------------------------------------
 
 # Import all sites covered by at least one read in at least one sample
-BS.rmZero.rds <- readRDS(file = file.path(outdir, "BS.rmZero.rds"))
+BS.smoothed <- readRDS(file = file.path(outdir, "BS.smoothed.rds"))
 
 # GRanges listing all regions of interest
-targets.gr <- c(TNFa.blat, IL12A.blat, TLR2.blat, NFKB2.blat)
+targets.gr <- suppressWarnings(c(TNFa.blat, IL12A.blat, TLR2.blat, NFKB2.blat))
 
 # Edit from UCSC to Ensembl chromosome naming
 seqinfo(targets.gr, new2old=1:length(targets.gr), force=FALSE) <- Seqinfo(
@@ -81,7 +81,7 @@ seqinfo(targets.gr, new2old=1:length(targets.gr), force=FALSE) <- Seqinfo(
 
 # Get methylation % in each region in each sample 
 methGenes <- getMeth(
-  BSseq = BS.rmZero.rds,
+  BSseq = BS.smoothed,
   regions = targets.gr,
   type = "raw", what = "perRegion")
 rownames(methGenes) <- names(targets.gr)
@@ -93,12 +93,12 @@ summary(t(methGenes))
 ## Another 1 suggests a single call, considering that all other values are low
 
 covGenes <- getCoverage(
-  BSseq = BS.rmZero.rds, regions = targets.gr, type = "Cov",
+  BSseq = BS.smoothed, regions = targets.gr, type = "Cov",
   what =  "perRegionTotal")
 rownames(covGenes) <- names(targets.gr)
 
 mGenes <- getCoverage(
-  BSseq = BS.rmZero.rds, regions = targets.gr, type = "M",
+  BSseq = BS.smoothed, regions = targets.gr, type = "M",
   what =  "perRegionTotal")
 rownames(mGenes) <- names(targets.gr)
 
@@ -114,3 +114,22 @@ write.xlsx(
   x = mGenes,
   file = file.path(outdir, "pyroseq.xlsx"),
   sheetName = "Methylated", append = TRUE)
+
+
+# Plot regions ------------------------------------------------------------
+
+for (geneName in names(targets.gr)){
+  pdf(
+    file = file.path(
+      outdir,
+      paste(paste("Pyroseq_validation", geneName, sep = "_"), "pdf", sep = ".")),
+    width = 6, height = 4)
+  plotRegion(
+    BSseq = BS.smoothed,
+    region = targets.gr[geneName],
+    extend = 2 * width(targets.gr[geneName]),
+    addRegions = targets.gr[geneName],
+    col = rep(c("blue", "red"), each = 8)
+  )
+  dev.off()
+}
