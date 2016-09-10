@@ -4,18 +4,20 @@
 library(biomaRt)
 library(GenomicRanges)
 
-
 # Parameters --------------------------------------------------------------
 
 outdir <- "bostaurus"
 
+if (file.access(outdir) != 0)
+  dir.create(outdir)
+
 # Find the right mart -----------------------------------------------------
 
-listMarts(host = "Mar2016.archive.ensembl.org")
-mart <- useMart(host = "Mar2016.archive.ensembl.org", biomart = "ENSEMBL_MART_ENSEMBL")
+listMarts(host = "mar2016.archive.ensembl.org")
+mart <- useMart(host = "mar2016.archive.ensembl.org", biomart = "ENSEMBL_MART_ENSEMBL")
 
 listDatasets(mart = mart)[,1:2]
-mart <- useMart(host = "Mar2016.archive.ensembl.org", biomart = "ENSEMBL_MART_ENSEMBL", dataset = "btaurus_gene_ensembl")
+mart <- useMart(host = "mar2016.archive.ensembl.org", biomart = "ENSEMBL_MART_ENSEMBL", dataset = "btaurus_gene_ensembl")
 
 attributePages(mart = mart)
 listAttributes(mart = mart, page = "feature_page")[,1:2]

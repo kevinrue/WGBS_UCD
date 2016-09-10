@@ -195,7 +195,8 @@ rm(meanCov.rmZero)
 
 # Keep only CG with coverage in all samples -------------------------------
 
-BS.allCovered <- BS.rmZero[rowSums(getCoverage(BSseq = BS.rmZero) > 0) == ncol(BS.rmZero),]
+BS.allCovered <- BS.rmZero[
+  rowSums(getCoverage(BSseq = BS.rmZero) > 0) == ncol(BS.rmZero),]
 
 colnames(BS.allCovered)
 sampleNames(BS.allCovered)

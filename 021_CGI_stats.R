@@ -7,9 +7,14 @@ library(ggplot2)
 genomeDir <- 'bostaurus'
 outdir <- 'bsseq'
 
+# Load unstranded CG methylation calls
 # BS <- readRDS(file.path(outdir, "BS.unstranded.rds"))
 BS <- readRDS(file.path(outdir, "BS.rmZero.rds"))
+
+# Load CGI genomic coordinates
 CGI <- readRDS(file.path(outdir, "CpG.gr.rds"))
+
+# Load genomic coordinates of genes
 genes <- readRDS(file.path(genomeDir, "biomart_ensembl_genes.rds"))
 
 seqlevels(CGI) <- gsub("^chr(Un_)?", "", seqlevels(CGI))

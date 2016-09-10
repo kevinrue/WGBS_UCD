@@ -23,40 +23,44 @@ colData(BS)
 
 # Smooth methylation calls ------------------------------------------------
 
-BS.fit <- BSmooth(BS, mc.cores = 6, verbose = TRUE)
-BS.fit
-saveRDS(BS.fit, file.path(outdir, "BS.smoothed.rds"))
-# saveRDS(BS.fit, file.path(outdir, "BS.unstranded.smoothed.rds"))
+BS.smoothed <- BSmooth(BS, mc.cores = 6, verbose = TRUE)
+BS.smoothed
+saveRDS(BS.smoothed, file.path(outdir, "BS.smoothed.rds"))
+# saveRDS(BS.smoothed, file.path(outdir, "BS.unstranded.smoothed.rds"))
 
-colnames(BS.fit)
-sampleNames(BS.fit)
-colnames(getCoverage(BS.fit))
-colData(BS.fit)
+colnames(BS.smoothed)
+sampleNames(BS.smoothed)
+colnames(getCoverage(BS.smoothed))
+colData(BS.smoothed)
 
 # Filter loci with enough calls -------------------------------------------
 
 keepLoci <- which(
   rowSums(
-    getCoverage(BSseq = BS.fit)[
-      , BS.fit$Infection == "Control"] >= min.coverage) >= min.samples &
+    getCoverage(BSseq = BS.smoothed)[
+      , BS.smoothed$Infection == "Control"] >= min.coverage) >= min.samples &
     rowSums(
-      getCoverage(BSseq = BS.fit)[
-        , BS.fit$Infection == "M. bovis"] >= min.coverage) >= min.samples)
+      getCoverage(BSseq = BS.smoothed)[
+        , BS.smoothed$Infection == "M. bovis"] >= min.coverage) >= min.samples)
 
 length(keepLoci)
-length(keepLoci) / length(BS.fit)
+length(keepLoci) / length(BS.smoothed)
 
-BS.fit <- BS.fit[keepLoci,]
+BS.keepLoci <- BS.smoothed[keepLoci,]
+
+saveRDS(BS.keepLoci, file.path(outdir, "BS.keepLoci.rds"))
 
 # Compute t-statistics ----------------------------------------------------
 
 BS.tstat <- BSmooth.tstat(
-  BS.fit,
-  group1 = paste0("M", levels(BS.fit$Animal)),
-  group2 = paste0("C", levels(BS.fit$Animal)),
+  BS.keepLoci,
+  group1 = paste0("M", levels(BS.keepLoci$Animal)),
+  group2 = paste0("C", levels(BS.keepLoci$Animal)),
   estimate.var = "paired",
   local.correct = TRUE,
   verbose = TRUE)
+
+saveRDS(BS.tstat, file.path(outdir, "BS.tstat.rds"))
 
 # Filter NA t-stats -------------------------------------------------------
 
@@ -99,16 +103,16 @@ write.csv(x = dmrs, file = file.path(outdir, "dmrs.csv"))
 
 # Plotting regions --------------------------------------------------------
 
-BS.fit$col <- c("blue", "red")[as.numeric(BS.fit$Infection)]
-colData(BS.fit)
+BS.keepLoci$col <- c("blue", "red")[as.numeric(BS.keepLoci$Infection)]
+colData(BS.keepLoci)
 
 pdf(file = file.path(outdir, "dmr_0002.pdf"), width = 9, height = 7)
-plotRegion(BS.fit, dmrs[2,], extend = 5000, addRegions = dmrs)
+plotRegion(BS.keepLoci, dmrs[2,], extend = 5000, addRegions = dmrs)
 dev.off()
 
 pdf(file = file.path(outdir, "dmr_0002_GeneCGI.pdf"), width = 9, height = 7)
 plotRegion(
-  BS.fit, dmrs[2,], extend = 5000,
+  BS.keepLoci, dmrs[2,], extend = 5000,
   addRegions = rbind(
     dmrs[,c("chr","start","end")],
     data.frame(
@@ -124,7 +128,7 @@ pdf(
   file = file.path(outdir, "dmr_0002_GeneCGI_20kb.pdf"),
   width = 9, height = 7)
 plotRegion(
-  BS.fit, dmrs[2,], extend = 20E3,
+  BS.keepLoci, dmrs[2,], extend = 20E3,
   addRegions = rbind(
     dmrs[,c("chr","start","end")],
     data.frame(
@@ -153,10 +157,10 @@ rm(BS.tstat.auto)
 # Compare with t-stats using randomised samples ---------------------------
 
 sample.rand <- sample(
-  x = sampleNames(BS.fit), size = length(sampleNames(BS.fit)))
+  x = sampleNames(BS.keepLoci), size = length(sampleNames(BS.keepLoci)))
 
 BS.tstat.rand <- BSmooth.tstat(
-  BS.fit,
+  BS.keepLoci,
   group1 = sample.rand[1:(length(sample.rand)/2)],
   group2 = sample.rand[(length(sample.rand)/2+1):length(sample.rand)],
   estimate.var = "paired",

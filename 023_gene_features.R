@@ -31,7 +31,7 @@ BS.collapsed <- collapseBSseq(BSseq = BS, columns = rep("Merged", 16))
 # Keep only CG >= 10 coverage
 BS.10 <- BS.collapsed[getCoverage(BS.collapsed) >= 10,]
 
-length(BS.10)
+length(BS.10) # 
 length(BS.10) / length(BS.collapsed) # 95%
 
 # Count CG per gene
@@ -51,6 +51,7 @@ genes$Meth.promoter <- as.vector(getMeth(
 
 genes.10 <- subset(genes, CG.gene >= 10 & CG.promoter >= 10)
 
+saveRDS(genes.10, file = file.path(outdir, "genes.prom.10.rds"))
 write.csv(x = genes.10, file = file.path(outdir, "genes.prom.10.csv"))
 
 gg.data <- melt(
