@@ -180,3 +180,8 @@ range(getStats(BS.tstat.auto)[,"tstat"])
 
 plot(density(t.stat.auto))
 lines(density(t.stat.auto.rand))
+
+# Write a table of DMR stats for the randomised, as was done for real data
+dmrs0.rand <- dmrFinder(BS.tstat.rand, cutoff = c(-4.6, 4.6))
+dmrs.rand <- subset(dmrs0.rand, n >= 3 & abs(meanDiff) >= 0.1)
+write.csv(x = dmrs.rand, file = file.path(outdir, "dmrs_randomised.csv"))
