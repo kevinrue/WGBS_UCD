@@ -44,7 +44,7 @@ l#!/bin/bash
 
 # Based on the M-bias plots
 # Extract methylation calls again ignoring 7 bp from the 5' of each mate
-./014_extractor.sh bismark extract 4 --ignore 7 --ignore_r2 7  > out.014.refined
+./014_extractor.sh bismark extract_refined 4 --ignore 7 --ignore_r2 7  > out.014.refined
 
 # TODO Collate methylation extraction statistics
 #015
