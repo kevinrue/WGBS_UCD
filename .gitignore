@@ -34,6 +34,7 @@ trimgalore
 
 # Alignment files
 bismark
+bwamem
 
 # Extracted methylation calls
 extract
