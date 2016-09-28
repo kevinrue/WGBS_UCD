@@ -5,6 +5,7 @@ library(ggplot2)
 library(reshape2)
 library(goseq)
 library(org.Bt.eg.db)
+library(BS)
 
 # Set parameters ----------------------------------------------------------
 
@@ -167,7 +168,7 @@ subGr <- subset(promoters.5, Meth.promoter > 0.99)
 countGenes <- rbind(
   countGenes, data.frame(Methylation = "0.99 - 1", Count = length(subGr)))
 prom.99_100 <- quickGO(names(subset(promoters.5, Meth.promoter > 0.9)))
-write.csv(x = prom.100_90, file = file.path(outdir, "prom.100_90.csv"))
+write.csv(x = prom.99_100, file = file.path(outdir, "prom.99_100.csv"))
 
 write.csv(
   x = countGenes,
