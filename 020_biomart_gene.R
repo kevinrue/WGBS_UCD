@@ -77,8 +77,23 @@ subset(umd31_transcripts, ensembl_transcript_id == "ENSBTAT00000028017")
 write.csv(
   x = umd31_transcripts,
   file = file.path(outdir, "biomart_ensembl_transcripts.csv"))
+
+# Format as Granges -------------------------------------------------------
+
+transcripts.gr <- GRanges(
+  seqnames = umd31_transcripts$chromosome_name,
+  ranges = IRanges(
+    start = umd31_transcripts$transcript_start,
+    end = umd31_transcripts$transcript_end,
+    names = umd31_transcripts$ensembl_transcript_id),
+  strand = umd31_transcripts$strand)
+mcols(transcripts.gr) <- umd31_transcripts[
+  ,c("gene_biotype", "transcription_start_site",
+     "5_utr_start", "5_utr_end", "3_utr_start", "3_utr_end",
+     "external_gene_name")]
+
 saveRDS(
-  object = umd31_transcripts,
+  object = transcripts.gr,
   file = file.path(outdir, "biomart_ensembl_transcripts.rds"))
 
 # Import/export exonic info -------------------------------------------
