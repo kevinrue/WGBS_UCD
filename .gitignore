@@ -10,16 +10,13 @@
 # R data files from past sessions
 .Rdata
 
-# Raw data folder
+# Data folders
 rawdata
-
-# Genome folder
 bostaurus
-
-# Log files
-log
+RNAseq
 
 # Standard output files
+log
 out*
 
 # Quality control files
