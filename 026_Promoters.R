@@ -1,11 +1,11 @@
 
 # Libraries ---------------------------------------------------------------
 
+library(bsseq)
 library(ggplot2)
 library(reshape2)
 library(goseq)
 library(org.Bt.eg.db)
-library(BS)
 
 # Set parameters ----------------------------------------------------------
 
@@ -30,17 +30,25 @@ genes <- readRDS(file.path(genomeDir, "biomart_ensembl_genes.rds"))
 BS.collapsed <- collapseBSseq(BSseq = BS, columns = rep("Merged", 16))
 
 # Keep only CG >= 2 coverage
-BS.2 <- BS.collapsed[getCoverage(BS.collapsed, what = "perBase") >= 2,]
+BS.2 <- BS.collapsed[
+  as.logical(getCoverage(BS.collapsed, what = "perBase") >= 2),
+]
 
 length(BS.2)
-length(BS.2) / length(BS.collapsed) # 99.5%
+length(BS.2) / length(BS.collapsed) # 99.6%
 
 # Count CG per promoter
-genes$CG.promoter <- countOverlaps(query = promoters(genes), subject = BS.2)
+genes$CG.promoter <- countOverlaps(
+  query = promoters(genes, upstream = 1500, downstream = 500),
+  subject = BS.2
+)
 
 # Meth % per promoter
 genes$Meth.promoter <- as.vector(getMeth(
-  BSseq = BS.2, regions = promoters(genes), type = "raw", what = "perRegion"))
+  BSseq = BS.2,
+  regions = promoters(genes, upstream = 1500, downstream = 500),
+  type = "raw", what = "perRegion")
+)
 
 # WARNING: NAs when 0 CG in the region considered
 # Subset to genes where both promoter and genes have >= 10 CG
@@ -48,7 +56,11 @@ genes$Meth.promoter <- as.vector(getMeth(
 promoters.5 <- subset(genes, CG.promoter >= 5)
 
 saveRDS(promoters.5, file = file.path(outdir, "promoters.5.rds"))
-write.csv(x = promoters.5, file = file.path(outdir, "promoters.5.csv"))
+write.csv(
+  x = promoters.5,
+  file = file.path(outdir, "promoters.5.csv"),
+  row.names = FALSE
+)
 
 gg.data <- melt(
   data = as.data.frame(mcols(promoters.5)),
