@@ -1,0 +1,460 @@
+---
+title: Import WGBS data in a BSseq object
+author:
+  - name: Kévin Rue-Albrecht
+    email: kevinrue67@gmail.com
+date: "`r doc_date()`"
+package: "`r pkg_ver('BiocStyle')`"
+abstract: >
+  Import WGBS data produced by Bismark into a BSSeq object.
+vignette: >
+  %\VignetteIndexEntry{Bioconductor style for PDF documents}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output: 
+  BiocStyle::pdf_document2
+---
+
+# Prior work
+
+Raw read pairs were adapter- and quality-trimmed using _Trim Galore!_
+as follows:
+
+```
+parallel -j $threads --xapply trim_galore \
+    --paired \
+    --output_dir $outdir/$batch ::: $fastq1s ::: $fastq2s
+```
+
+Trimmed read pairs were aligned using _Bismark_ as follows:
+
+```
+bismark \
+    $genome \
+    --bowtie2 \
+    --nucleotide_coverage \
+		--output_dir $outdir/$batch \
+		-p $threads \
+		--temp_dir $tempdir \
+		-1 $paired1s -2 $paired2s
+```
+
+Aligned read pairs were deduplicated using _Bismark_ as follows:
+
+```
+parallel -j $threads --xapply deduplicate_bismark \
+    --bam -p ::: $bams_paired
+```
+
+Methylation calls were extracted from deduplicated aligned read pairs
+using as follows:
+
+```
+parallel -j $threads --xapply bismark_methylation_extractor \
+    --output $outdir/$batch
+    --bedGraph \
+		--buffer_size 10G \
+		--scaffolds \
+		--cytosine_report \
+		--gzip \
+		--genome_folder $genomeFolder \
+		--no_overlap \
+		--paired-end ::: $bams_paired
+```
+
+# Settings
+
+Required packages:
+
+```{r pkgs}
+library(bsseq)
+library(BiocParallel)
+library(data.table)
+library(GenomicRanges)
+library(reshape2)
+```
+
+Let us set the working directory to execute the following code chunks:
+
+```{r workdir}
+workdir <- ifelse(interactive(), ".", "..")
+```
+
+Let us set up some paths and values relevant for the analysis:
+
+```{r paths}
+cpgFolder <- "extract_refined/Merged"
+cpgFilePattern <- "CpG_report.txt.gz$"
+CPUs <- 2
+outDir <- file.path(workdir, "bsseq")
+```
+
+Let us created folders as necessary:
+
+```{r dirCreate}
+if (!dir.exists(outDir)){
+  dir.create(outDir)
+}
+```
+
+# Prepare phenotype information
+
+First, let us obtain the list of Bismark reports for CpG sites:
+
+```{r cpgFiles}
+cpgFiles <- list.files(file.path(workdir, cpgFolder), cpgFilePattern)
+length(cpgFiles)
+```
+
+From the file names, let us now assemble phenotype information:
+
+```{r pdata}
+pdata <- data.frame(
+  Sample = sapply(X = strsplit(cpgFiles, '_'), FUN = "[[", 1),
+  Infection = factor(
+    x = c("Control", "M. bovis")[
+      as.numeric(factor(
+        x = sapply(
+          X = sapply(X = strsplit(x = cpgFiles, split = '_'), FUN = "[[", 1),
+          FUN = "substr", start = 1, stop = 1),
+        levels = c("C", "M")))],
+    levels = c("Control", "M. bovis")),
+  Animal = factor(sapply(
+    X = sapply(X = strsplit(x = cpgFiles, split = '_'), FUN = "[[", 1),
+    FUN = "gsub",
+    pattern = "[CM]",
+    replacement = ""),
+    levels = sort(as.numeric(unique(
+      sapply(
+        X = sapply(X = strsplit(x = cpgFiles, split = '_'), FUN = "[[", 1),
+        FUN = "gsub",
+        pattern = "[CM]",
+        replacement = ""))))),
+  Filename = cpgFiles,
+  stringsAsFactors = FALSE
+)
+dimnames(pdata)
+```
+
+We may examine the resulting `data.frame`:
+
+```{r pdata2pandoc, results='asis', echo=FALSE}
+pdata2 <- pdata
+pdata2$Filename <- paste(
+  substr(pdata2$Filename, 1, 10),
+  substr(pdata2$Filename, nchar(pdata2$Filename)-16, nchar(pdata2$Filename)),
+  sep = "...")
+pander::pandoc.table(pdata2)
+rm(pdata2)
+```
+
+```{r writePdata}
+write.csv(pdata, file.path(outDir, 'phenodata.csv'), row.names = FALSE)
+```
+
+# Import methylation calls
+
+Let us write a function that parses a gzip-compressed report file
+(using the efficient `r CRANpkg("data.table")` `fread` method)
+and return a `r Biocpkg("bsseq")` `BSseq` object:
+
+```{r readCpgReportGzip, message=FALSE, eval=FALSE}
+read.CpGreport.gz <- function(
+  index, pData, folder = ".", sample = "Sample", file = "Filename")
+  {
+  fread_cmd <- paste("gunzip -c", file.path(folder, pData[index, file]))
+  message(pData[index, sample], " : ", fread_cmd)
+  dat <- as.data.frame(fread(fread_cmd))
+  gr <- GRanges(
+    seqnames = dat[,1],
+    ranges = IRanges(start = dat[,2], end = dat[,2]),
+    strand = dat[,3])
+  # Methylation calls
+  M <- as.matrix(dat[,4], drop=FALSE)
+  # Total calls
+  Cov <- as.matrix(dat[,4] + dat[,5], drop=FALSE)
+  BSseq(
+    M = M,
+    Cov = Cov,
+    pData = pData[index,],
+    sampleNames = pData[index, sample],
+    gr = gr)
+}
+```
+
+We may then import methylation calls for each sample and :
+
+```{r bplapplyImport, eval=FALSE}
+BS.list <- bplapply(
+  1:nrow(pdata), 
+  read.CpGreport.gz,
+  pData = pdata,
+  folder = cpgFolder,
+  BPPARAM = MulticoreParam(CPUs))
+```
+
+Let us then combine the individual samples into a single `BSseq` object:
+
+```{r combineList, eval=FALSE}
+BS.combined <- combineList(BS.list)
+```
+
+We may then free the memory used to store the individual data sets,
+to reduce memory usage:
+
+```{r rmBSlist, eval=FALSE}
+rm(BS.list, read.CpGreport.gz)
+```
+
+Given the signficant time required to parse the data files and assemble the
+`BSseq` object, let us save the serialised object to file for faster access
+in susbsequent analyses:
+
+```{r saveBScombined, eval=FALSE}
+saveRDS(BS.combined, file.path(outDir, 'BS.combined.rds'))
+```
+
+```{r importBScombined, echo=FALSE}
+BS.combined <- readRDS(file.path(outDir, 'BS.combined.rds'))
+```
+
+# Raw statistics
+
+Let us examine the mean coverage of the stranded methylation calls imported
+from the raw data files:
+
+```{r covStranded}
+meanCov.stranded <- getCoverage(BS.combined, what = "perRegionAverage")
+meanCov <- data.frame(Stranded = meanCov.stranded)
+summary(meanCov)
+write.csv(meanCov, file.path(outDir, "meanCov.csv"))
+rm(meanCov.stranded)
+```
+
+Let us find the maximum coverage for any given CpG and sample:
+
+```{r baseCoverageStranded}
+max(getCoverage(BS.combined))
+```
+
+Let us define appropriate cut-offs of coverage:
+
+```{r minCovsStranded}
+minCovs <- c(1, 2, 5, 10 , 20, 50, 100, 200, 500, 1000)
+```
+
+We may then examine the number of loci found at those levels of coverage
+within each sample:
+
+```{r strandedCovs, eval=FALSE}
+strandedCovs <-
+  sapply(minCovs, function(minCov){
+    message(sprintf("Coverage: %i", minCov))
+    colSums(getCoverage(BS.combined) > minCov)
+  })
+colnames(strandedCovs) <- as.character(minCovs)
+saveRDS(strandedCovs, file.path(outDir, "strandedCovs.rds"))
+```
+
+```{r importStrandedCovs, echo=FALSE}
+strandedCovs <- readRDS(file.path(outDir, "strandedCovs.rds"))
+```
+
+```{r showStrandedCovs, results='asis'}
+pander::pandoc.table(strandedCovs)
+```
+
+```{r meltStrandedCovsGG}
+strandedCovsGG <- melt(
+  strandedCovs,
+  varnames = c("Sample", "Coverage"),
+  value.name = "Loci")
+strandedCovsGG$Group <- ifelse(
+  grepl("^C", strandedCovsGG$Sample),
+  "Control",
+  "M. bovis"
+)
+```
+
+```{r strandedCovsPlot}
+library(ggplot2)
+ggplot(strandedCovsGG) +
+  geom_line(aes(x = Coverage, y = Loci, colour = Group, group = Sample)) +
+  scale_y_log10(
+    breaks = 10^(0:9),
+    labels = 10^(0:9),
+    minor_breaks = rep(1:9, each = 8)*10^(0:8),
+    limits = c(1, nrow(BS.combined))) +
+  labs(x = "Stranded coverage", y = "Stranded CpG loci")
+```
+
+# Unstranded statistics
+
+Let us collapse methylation information from both both strands into a single
+value per unstranded CpG locus:
+
+```{r strandCollapse, eval=FALSE}
+BS.unstranded <- strandCollapse(BS.combined)
+```
+
+```{r BSunstrandedImport}
+BS.unstranded <- readRDS(file.path(outDir, 'BS.unstranded.rds'))
+```
+
+Let us release memory used to store the large `BSseq` object used to store
+stranded methylation calls:
+
+```{r rmBScombined}
+rm(BS.combined)
+```
+
+Similarly to the previous section, let us collect coverage statistics for
+the unstranded methylation calls and append them to the existing summary
+table:
+
+```{r covUnstranded}
+meanCov.unstranded <- getCoverage(BS.unstranded, what = "perRegionAverage")
+meanCov <- cbind(meanCov, data.frame(Unstranded = meanCov.unstranded))
+summary(meanCov)
+write.csv(meanCov, file.path(outDir, "meanCov.csv"))
+rm(meanCov.unstranded)
+```
+
+As expected, collapsing methylation in unstranded values naturally doubled the
+coverage of each palindromic C~p~G locus.
+
+Again, we may then examine the number of loci found at various levels o
+coverage within each sample.
+
+First let us find out the new maximum coverage after collapsing strand
+information:
+
+```{r baseCoverageUnstranded}
+max(getCoverage(BS.unstranded))
+```
+
+Let us add additional cut-offs of coverage, considering the new values:
+
+```{r minCovsUnstranded}
+minCovs <- c(minCovs, 1200, 1500)
+```
+
+```{r unstrandedCovs, eval=FALSE}
+unstrandedCovs <-
+  sapply(minCovs, function(minCov){
+    message(sprintf("Coverage: %i", minCov))
+    colSums(getCoverage(BS.unstranded) > minCov)
+  })
+colnames(unstrandedCovs) <- as.character(minCovs)
+unstrandedCovsGG <- melt(
+  unstrandedCovs,
+  varnames = c("Sample", "Coverage"),
+  value.name = "Loci")
+unstrandedCovsGG$Group <- ifelse(
+  grepl("^C", unstrandedCovsGG$Sample),
+  "Control",
+  "M. bovis"
+)
+saveRDS(unstrandedCovsGG, file.path(outDir, "unstrandedCovs.rds"))
+```
+
+```{r importUnstrandedCovsGG}
+unstrandedCovsGG <- readRDS(file.path(outDir, "unstrandedCovs.rds"))
+```
+
+```{r unstrandedCovsPlot}
+library(ggplot2)
+ggplot(unstrandedCovsGG) +
+  geom_line(aes(x = Coverage, y = Loci, colour = Group, group = Sample)) +
+  scale_y_log10(
+    breaks = 10^(0:9),
+    labels = 10^(0:9),
+    minor_breaks = rep(1:9, each = 8)*10^(0:8),
+    limits = c(1, nrow(BS.unstranded))
+  ) +
+  labs(x = "Untranded coverage", y = "Untranded CpG loci")
+```
+
+We may also query the aggregated average coverage per experimental group
+(sum of average C~p~G coverage across samples within each infection group):
+
+```{r aggregateCoverageUnstranded}
+tapply(
+  getCoverage(BS.unstranded, what = "perRegionAverage"),
+  BS.unstranded$Infection,
+  sum
+)
+```
+
+# C~p~G loci with zero coverage
+
+To reduce further memory usage, we may remove altogether loci without
+methylation call in any sample (in the unstranded data set):
+
+```{r BSrmZero}
+BS.rmZero <- BS.unstranded[rowSums(getCoverage(BSseq = BS.unstranded)) > 0,]
+saveRDS(BS.rmZero, file.path(outDir, 'BS.rmZero.rds'))
+```
+
+Let us find out the proportion of loci discarded in this manner:
+
+```{r proportionNotCovered}
+1 - (nrow(BS.rmZero) / nrow(BS.unstranded))
+```
+
+This marginal data reduction indicates that a very small proportion of
+C~p~G loci were not covered by the WGBS.
+
+We may now free again the memory used to store the unstranded data set prior
+to filtering:
+
+```{r removeBSunstranded}
+rm(BS.unstranded)
+```
+
+Let us examine the effect of this marginal filtering on overall coverage
+in the data set:
+
+```{r covNoZero}
+meanCov.rmZero <- getCoverage(BS.rmZero, what = "perRegionAverage")
+meanCov <- cbind(meanCov, data.frame(NoZero = meanCov.rmZero))
+write.csv(meanCov, file.path(outDir, "meanCov.csv"))
+summary(meanCov.rmZero)
+rm(meanCov.rmZero)
+```
+
+# C~p~G loci covered in all samples
+
+Let us examine the coverage of C~p~G loci covered in all samples:
+
+```{r allCovered}
+BS.allCovered <- BS.rmZero[
+  rowSums(getCoverage(BS.rmZero) > 0) == ncol(BS.rmZero),
+  ]
+saveRDS(BS.allCovered, file.path(outDir, 'BS.allCovered.rds'))
+```
+
+We may then examine the proportion of loci covered in all samples, relative
+to the near-complete set of loci covered in at least a single sample:
+
+```{r proportionAllCovered}
+nrow(BS.allCovered) / nrow(BS.rmZero)
+```
+
+This much more modest proportion suggests that the shallow sequencing of
+samples in this data set provides limited information in individual samples,
+in contrast to an overall near-complete coverage of the genome across all
+samples.
+
+# Session info
+
+Here is the output of `sessionInfo()` on the system on which this
+document was compiled:
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+
+[R]: http://r-project.org
+[RStudio]: http://www.rstudio.com/
