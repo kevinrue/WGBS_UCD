@@ -1,5 +1,8 @@
+# Archives
+*.zip
+
 # Vignettes
-*pdf
+*.pdf
 
 # Mac
 .DS_Store
@@ -21,6 +24,7 @@ RNAseq
 # Standard output files
 log
 out*
+*.csv
 
 # Quality control files
 fastqc_raw

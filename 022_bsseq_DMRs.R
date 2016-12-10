@@ -23,7 +23,7 @@ colData(BS)
 
 # Smooth methylation calls ------------------------------------------------
 
-BS.smoothed <- BSmooth(BS, mc.cores = 6, verbose = TRUE)
+BS.smoothed <- BSmooth(BS, mc.cores = 2, verbose = TRUE)
 BS.smoothed
 saveRDS(BS.smoothed, file.path(outdir, "BS.smoothed.rds"))
 # saveRDS(BS.smoothed, file.path(outdir, "BS.unstranded.smoothed.rds"))
