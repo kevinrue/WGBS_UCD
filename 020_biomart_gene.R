@@ -103,7 +103,7 @@ umd31_exons <- getBM(
     "chromosome_name", "exon_chrom_start", "exon_chrom_end", "strand",
     "gene_biotype", "is_constitutive",
     "genomic_coding_start", "genomic_coding_end",
-    "ensembl_exon_id", "external_gene_name"),
+    "ensembl_exon_id", "external_gene_name", "ensembl_gene_id"),
   mart = mart)
 
 # For each exonID, keep the first one, ordered by increased count of NAs
