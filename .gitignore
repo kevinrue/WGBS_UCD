@@ -1,64 +1,49 @@
 # Archives
 *.zip
-
 # Vignettes
 *.pdf
-
 # Mac
 .DS_Store
-
 # History files
 .Rhistory
-
 # Example code in package build process
 *-Ex.R
-
 # R data files from past sessions
 .Rdata
-
 # Data folders
 rawdata
 bostaurus
 RNAseq
-
 # Standard output files
 log
 out*
 *.csv
-
 # Quality control files
 fastqc_raw
 fastqc_merged
 fastqc_trimmed
 fastqc_aligned
 fastqc_deduplicated
-
 # Trimming files
 trimgalore
-
 # Alignment files
 bismark
 bwamem
-
 # Extracted methylation calls
 extract
 extract_refined
-
 # Bismark reports
 reports_bismark
-
 # R analyses
 bsseq
-
 # SeqMonk analyses
 seqmonk_project
-
 # IGV sessions
 IGV_session
-
 # Temp files
 *~
 tmp_bismark
 tmp_picard
 .Rproj.user
 *.Rproj
+exp_data
