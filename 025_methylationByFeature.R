@@ -1,6 +1,11 @@
+# Version 1.9.2
+# devtools::install_github("Bioconductor-mirror/bsseq", ref = "bd60d13")
 
+library(bsseq)
 library(GenomicRanges)
 library(BSgenome.Btaurus.UCSC.bosTau6)
+library(DelayedArray)
+
 
 # Parameters of analysis ----
 
@@ -78,6 +83,12 @@ rm(CGIOverProm.bool)
 # Load methylation calls ----
 
 BS.unstranded <- readRDS(file = file.path(outdir, "BS.unstranded.rds"))
+
+# BS.2 <- updateObject(BS.unstranded)
+# saveRDS(BS.2, "bsseq/BS.unstranded_DelayedMatrix.rds")
+
+# BS.2 <- readRDS("bsseq/BS.unstranded_DelayedMatrix.rds")
+
 # Collapse by infection group
 BS.infection <- collapseBSseq(
   BSseq = BS.unstranded,
@@ -445,6 +456,8 @@ ggData <- rbind(
 # Backup
 saveRDS(object = ggData, file = file.path(outdir, "Peat_et_al-ggData.rds"))
 
+ggData <- readRDS(file = file.path(outdir, "Peat_et_al-ggData.rds"))
+
 # ggplot ----
 
 # ggData <- readRDS(file = file.path(outdir, "Peat_et_al-ggData.rds"))
@@ -467,6 +480,10 @@ ggData$Infection <- factor(
 saveRDS(object = ggData, file = file.path(outdir, "Peat_et_al-ggData.rds"))
 
 library(ggplot2)
+library(RColorBrewer)
+
+colour.infection <- brewer.pal(3, "Set1")[1:2]
+names(colour.infection) <- c("M. bovis", "Control")
 
 gg <- ggplot(
   data = ggData,
@@ -477,7 +494,9 @@ gg <- ggplot(
     fill = Infection)
 ) +
   facet_grid(. ~ Region) +
-  scale_colour_discrete(l = 50)
+  scale_fill_manual(values = colour.infection) +
+  scale_colour_manual(values = colour.infection)
+# + scale_colour_discrete(l = 50)
 
 gg + geom_boxplot()
 
@@ -487,11 +506,12 @@ ggsave(
   width = 10,
   height = 5)
 
-gg + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))
+gg + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75), alpha = 0.5) +
+  theme_bw()
 
 ggsave(
-  filename = file.path(outdir, "Peat_al_al-violinPlot.pdf"),
-  plot = gg + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)),
+  filename = file.path(outdir, "Peat_al_al-violinPlot_v2.pdf"),
+  plot = gg + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75), alpha = 0.5),
   width = 10,
   height = 5)
 
