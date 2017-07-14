@@ -1,3 +1,5 @@
+# Version 1.9.2
+# devtools::install_github("Bioconductor-mirror/bsseq", ref = "bd60d13")
 
 # Libraries ---------------------------------------------------------------
 
@@ -186,3 +188,28 @@ write.csv(
   x = countGenes,
   file = file.path(outdir, "Promoters_countGenes.csv"),
   row.names = FALSE)
+
+# Mid-meth promoters without curated list ----
+
+library(readxl)
+visually_sorted_promoters <-
+  read_excel("~/Desktop/WGBS/WGBS_UCD/exp_data/20170714_GO_restricted/List of visually sorted promoters 13-7-17.xlsx")
+
+
+subGr <- subset(promoters.5, Meth.promoter > 1/3 & Meth.promoter < 2/3)
+
+table(names(subGr) %in% visually_sorted_promoters$ensembl_gene_id) # visually sorted represent ~10% of intermediate
+table(visually_sorted_promoters$ensembl_gene_id %in% names(subGr)) # all visually sorted are in intermediate
+
+# subGr <- subGr[!names(subGr) %in% visually_sorted_promoters]
+
+prom.33_66.without <- quickGO(setdiff(names(subGr), visually_sorted_promoters$ensembl_gene_id))
+prom.33_66.visually <- quickGO(visually_sorted_promoters$ensembl_gene_id)
+
+View(prom.33_66.without)
+View(prom.33_66.visually)
+
+write.csv(x = prom.33_66.without, file = file.path(outdir, "prom.33_66.without.csv"))
+write.csv(x = prom.33_66.visually, file = file.path(outdir, "prom.33_66.visually.csv"))
+
+# all(prom.33_66$term == prom.33_66.without$term)
