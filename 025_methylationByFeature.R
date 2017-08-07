@@ -6,6 +6,8 @@ library(GenomicRanges)
 library(BSgenome.Btaurus.UCSC.bosTau6)
 library(DelayedArray)
 
+options(DelayedArray.block.size=getOption("DelayedArray.block.size") * 10L)
+
 
 # Parameters of analysis ----
 
@@ -82,12 +84,13 @@ rm(CGIOverProm.bool)
 
 # Load methylation calls ----
 
-BS.unstranded <- readRDS(file = file.path(outdir, "BS.unstranded.rds"))
-
-# BS.2 <- updateObject(BS.unstranded)
-# saveRDS(BS.2, "bsseq/BS.unstranded_DelayedMatrix.rds")
-
-# BS.2 <- readRDS("bsseq/BS.unstranded_DelayedMatrix.rds")
+if (packageVersion("bsseq") == "1.9.2"){
+  BS.unstranded <- readRDS(file = file.path(outdir, "BS.unstranded.rds"))
+  # BS.2 <- updateObject(BS.unstranded)
+  # saveRDS(BS.2, "bsseq/BS.unstranded_DelayedMatrix.rds")
+} else {
+  BS.unstranded <- readRDS(file = file.path(outdir, "BS.unstranded_DelayedMatrix.rds"))
+}
 
 # Collapse by infection group
 BS.infection <- collapseBSseq(
@@ -95,6 +98,8 @@ BS.infection <- collapseBSseq(
   columns = ifelse(grepl("C", colnames(BS.unstranded)), "Control", "M. bovis"))
 
 rm(BS.unstranded)
+
+# saveRDS(BS.infection, file.path(outdir, "BS.infection_DelayedMatrix.rds"))
 
 # Coverage of each base
 baseCoverage <- getCoverage(
