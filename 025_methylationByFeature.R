@@ -100,14 +100,15 @@ BS.infection <- collapseBSseq(
 rm(BS.unstranded)
 
 # saveRDS(BS.infection, file.path(outdir, "BS.infection_DelayedMatrix.rds"))
+# BS.infection <- readRDS(file.path(outdir, "BS.infection_DelayedMatrix.rds"))
 
 # Coverage of each base
 baseCoverage <- getCoverage(
   BSseq = BS.infection, type = "Cov", what = "perBase") > 2
 # Identify loci >=2 calls in Control
-BScontrol <- BS.infection[baseCoverage[,"Control"]]
+BScontrol <- BS.infection[as.vector(baseCoverage[,"Control"])]
 # Identify probes >= 10 loci >= 2 calls in M. bovis
-BSbovis <- BS.infection[baseCoverage[,"M. bovis"]]
+BSbovis <- BS.infection[as.vector(baseCoverage[,"M. bovis"])]
 
 rm(baseCoverage)
 
@@ -136,7 +137,7 @@ methIntergenic <- getMeth(
   type = "raw",
   what = "perRegion")
 colnames(methIntergenic) <- c("meth_Control", "meth_Mbovis")
-values(intergenic.gr) <- cbind(values(intergenic.gr), DataFrame(methIntergenic))
+values(intergenic.gr) <- cbind(values(intergenic.gr), DataFrame(as.matrix(methIntergenic)))
 
 rm(methIntergenic)
 
@@ -423,9 +424,21 @@ methCGINotOverProm <- getMeth(
   what = "perRegion")
 colnames(methCGINotOverProm) <- c("meth_Control", "meth_Mbovis")
 values(CGINotOverProm.gr) <- cbind(
-  values(CGINotOverProm.gr), DataFrame(methCGINotOverProm))
+  values(CGINotOverProm.gr), DataFrame(as.matrix(methCGINotOverProm)))
 
 rm(methCGINotOverProm)
+
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociControl > 10)$meth_Control > 2/3)
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociControl > 10)$meth_Control < 1/3)
+with(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociControl > 10), table(meth_Control > 1/3 & meth_Control < 2/3))
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociMbovis > 10)$meth_Mbovis > 2/3)
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociMbovis > 10)$meth_Mbovis < 1/3)
+with(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociMbovis > 10), table(meth_Mbovis > 1/3 & meth_Mbovis < 2/3))
+
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociControl > 10)$meth_Control < 1/2)
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociControl > 10)$meth_Control > 1/2)
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociMbovis > 10)$meth_Mbovis < 1/2)
+table(subset(as.data.frame(mcols(CGINotOverProm.gr)), lociMbovis > 10)$meth_Mbovis > 1/2)
 
 # Save values for plot (Control)
 ggData <- rbind(
@@ -465,8 +478,6 @@ ggData <- readRDS(file = file.path(outdir, "Peat_et_al-ggData.rds"))
 
 # ggplot ----
 
-# ggData <- readRDS(file = file.path(outdir, "Peat_et_al-ggData.rds"))
-
 ggData$Region <- factor(
   x = ggData$Region,
   levels = c(
@@ -483,6 +494,7 @@ ggData$Infection <- factor(
 
 # Backup
 saveRDS(object = ggData, file = file.path(outdir, "Peat_et_al-ggData.rds"))
+# ggData <- readRDS(file = file.path(outdir, "Peat_et_al-ggData.rds"))
 
 library(ggplot2)
 library(RColorBrewer)
