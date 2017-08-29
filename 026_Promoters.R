@@ -18,9 +18,10 @@ genomeDir <- 'bostaurus'
 
 # Import previous data ----------------------------------------------------
 
-BS <- readRDS(file.path(outdir, "BS.rmZero.rds"))
+# BS <- readRDS(file.path(outdir, "BS.rmZero.rds"))
 # BS <- updateObject(BS)
-saveRDS(BS, file.path(outdir, "BS.rmZero_DelayedMatrix.rds"))
+# saveRDS(BS, file.path(outdir, "BS.rmZero_DelayedMatrix.rds"))
+BS <- readRDS(file.path(outdir, "BS.rmZero_DelayedMatrix.rds"))
 
 sampleNames(BS)
 colnames(BS)
@@ -33,8 +34,9 @@ genes <- readRDS(file.path(genomeDir, "biomart_ensembl_genes.rds"))
 # Compare gene body to promoter -------------------------------------------
 
 # Combine all samples
-BS.collapsed <- collapseBSseq(BSseq = BS, columns = rep("Merged", 16))
+# BS.collapsed <- collapseBSseq(BSseq = BS, columns = rep("Merged", 16))
 # saveRDS(BS.collapsed, file.path(outdir, "BS.collapse.all_DelayedMatrix.rds"))
+BS.collapsed <- readRDS(file.path(outdir, "BS.collapse.all_DelayedMatrix.rds"))
 
 # Keep only CG >= 5 coverage
 BS.5 <- BS.collapsed[
