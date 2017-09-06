@@ -112,7 +112,7 @@ for (ensGene in ensGenes2plot){
   CGcount <- mcols(promoters.5[ensGene])[,"CG.promoter"]
   MethPromoter <- format(
     mcols(promoters.5[ensGene])[,"Meth.promoter"], digits = 2)
-  names(annotGR)[3] <- ifelse(geneName == "", ensGene, geneName)
+  names(annotGR)[4] <- ifelse(geneName == "", ensGene, geneName)
   fileOut <- file.path(outDir, sprintf(
     "%i-%s-%s-%s_gene_exons_promoter.pdf",
     CGcount, MethPromoter, geneName, ensGene))

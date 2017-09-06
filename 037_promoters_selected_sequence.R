@@ -58,11 +58,6 @@ exons.gr <- GRanges(
 )
 exons.grl <- split(exons.gr, names(exons.gr))
 
-# Import identifiers of genes to plot ----
-
-library(readxl)
-shortlist <- read_excel("~/Desktop/WGBS/WGBS_UCD/exp_data/shortlisted promoters for KR 27-6-17.xlsx")
-
 # Import sequences ----
 
 sequences <- DNAStringSet(c(
@@ -102,14 +97,21 @@ PCR.gr  <- c(TNF.pcr, IL12A.pcr, TLR2.pcr, NFKB2.pcr)
 
 # Produce plots ----
 
-ensGenes2plot <- with(genes.gr, ensembl_gene_id[match(c("TNF","IL12A","TLR2","NFKB2"), hgnc_symbol)])
+ensGenes2plot <- with(
+  genes.gr,
+  data.frame(
+    gene_name = c("TNF","IL12A","TLR2","NFKB2"),
+    gene_id = ensembl_gene_id[match(c("TNF","IL12A","TLR2","NFKB2"), hgnc_symbol)],
+    stringsAsFactors = FALSE
+  )
+)
 
-all(ensGenes2plot %in% names(genes.gr))
-setdiff(ensGenes2plot, names(genes.gr))
-which(!ensGenes2plot %in% names(genes.gr))
+all(ensGenes2plot$gene_id %in% names(genes.gr))
+setdiff(ensGenes2plot$gene_id, names(genes.gr))
+which(!ensGenes2plot$gene_id %in% names(genes.gr))
 
-for (ensGene in ensGenes2plot){
-  message(match(ensGene, ensGenes2plot))
+for (ensGene in ensGenes2plot$gene_id){
+  message(match(ensGene, ensGenes2plot$gene_id))
   geneGR <- genes.gr[ensGene]
   geneName <- geneGR$external_gene_name
   pcrGR <- PCR.gr[geneName]
@@ -125,7 +127,7 @@ for (ensGene in ensGenes2plot){
   CGcount <- mcols(promoters.10[ensGene])[,"CG.promoter"]
   MethPromoter <- format(
     mcols(promoters.10[ensGene])[,"Meth.promoter"], digits = 2)
-  names(annotGR)[3] <- ifelse(geneName == "", ensGene, geneName)
+  names(annotGR)[4] <- ifelse(geneName == "", ensGene, geneName)
   fileOut <- file.path(outDir, sprintf(
     "%i-%s-%s-%s_gene_exons_promoter.pdf",
     CGcount, MethPromoter, geneName, ensGene))
