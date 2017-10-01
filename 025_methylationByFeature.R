@@ -547,3 +547,27 @@ write.csv(
   x = as.data.frame(x = regionsCount),
   file = file.path(outdir, "Peat_et_al-regionCount.csv"),
   row.names = FALSE)
+
+# Test if distribution is different in each feature ----
+
+IR.aov <- aov(Value ~ Region*Infection, subset(ggData, Region != "Intergenic"))
+summary(IR.aov)
+coefficients(IR.aov)
+anova(IR.aov)
+
+summary(ggData)
+wilcox.test(Value ~ Infection, ggData, Region == "Intergenic", conf.int=TRUE)
+wilcox.test(Value ~ Infection, ggData, Region == "Gene body", conf.int=TRUE)
+wilcox.test(Value ~ Infection, ggData, Region == "CGI Promoters", conf.int=TRUE)
+wilcox.test(Value ~ Infection, ggData, Region == "Non-CGI Promoters", conf.int=TRUE)
+wilcox.test(Value ~ Infection, ggData, Region == "Promoter CGIs", conf.int=TRUE, conf.level=0.99)
+wilcox.test(Value ~ Infection, ggData, Region == "Non-Promoter CGIs", conf.int=TRUE)
+
+t.test(Value ~ Infection, ggData, Region == "Intergenic")
+t.test(Value ~ Infection, ggData, Region == "Gene body")
+t.test(Value ~ Infection, ggData, Region == "CGI Promoters")
+t.test(Value ~ Infection, ggData, Region == "Non-CGI Promoters")
+t.test(Value ~ Infection, ggData, Region == "Promoter CGIs")
+t.test(Value ~ Infection, ggData, Region == "Non-Promoter CGIs")
+
+table(subset(ggData, Region=="Intergenic", "Infection"))
