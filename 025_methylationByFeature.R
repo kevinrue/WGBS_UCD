@@ -183,6 +183,15 @@ pdf("2017-10-04_test_regions/intergenic_hist.pdf", width = 6, height = 4)
 hist(intergenic.gr$loci.2, breaks = seq(0, max(intergenic.gr$loci.2)+10, 10))
 dev.off()
 
+write.csv(
+  subset(
+    as.data.frame(intergenic.gr),
+    loci.2 >= 10
+  ),
+  file.path("2017-10-04_test_regions", "intergenic.gr.csv"),
+  row.names = FALSE
+)
+
 sink("2017-10-04_test_regions/intergenic_paired.txt")
 with(
   subset(
@@ -374,6 +383,15 @@ pdf("2017-10-04_test_regions/genebody_hist.pdf", width = 6, height = 4)
 hist(tilesGenes$loci.2, breaks = seq(0, max(tilesGenes$loci.2)+10, 10))
 dev.off()
 
+write.csv(
+  subset(
+    as.data.frame(tilesGenes),
+    loci.2 >= 10
+  ),
+  file.path("2017-10-04_test_regions", "tilesGenes.gr.csv"),
+  row.names = FALSE
+)
+
 sink("2017-10-04_test_regions/genebody_paired.txt")
 with(
   subset(
@@ -438,7 +456,7 @@ ggData <- rbind(
     Value = subset(
       x = values(tilesGenes),
       subset = loci.2 >= 10,
-      select = "meth_Control",
+      select = "meth_Control.2",
       drop = TRUE)
   )
 )
@@ -455,7 +473,7 @@ ggData <- rbind(
     Value = subset(
       x = values(tilesGenes),
       subset = loci.2 >= 10,
-      select = "meth_Mbovis",
+      select = "meth_Mbovis.2",
       drop = TRUE)
   )
 )
@@ -497,6 +515,15 @@ plot(density(promsOverCGI.gr$loci.2))
 pdf("2017-10-04_test_regions/promsOverCGI_hist.pdf", width = 6, height = 4)
 hist(promsOverCGI.gr$loci.2, breaks = seq(0, max(promsOverCGI.gr$loci.2)+10, 10))
 dev.off()
+
+write.csv(
+  subset(
+    as.data.frame(promsOverCGI.gr),
+    loci.2 >= 5
+  ),
+  file.path("2017-10-04_test_regions", "promsOverCGI.gr.csv"),
+  row.names = FALSE
+)
 
 sink("2017-10-04_test_regions/promsOverCGI_paired.txt")
 with(
@@ -542,7 +569,7 @@ pdf("2017-10-04_test_regions/promsOverCGI_scatter.pdf", width = 6, height = 6)
 with(
   subset(
     as.data.frame(promsOverCGI.gr),
-    loci.2 >= 10
+    loci.2 >= 5
   ),
   plot(
     meth_Control.2,
@@ -622,6 +649,15 @@ plot(density(promsNotOverCGI.gr$loci.2))
 pdf("2017-10-04_test_regions/promsNotOverCGI_hist.pdf", width = 6, height = 4)
 hist(promsNotOverCGI.gr$loci.2, breaks = seq(0, max(promsNotOverCGI.gr$loci.2)+10, 10))
 dev.off()
+
+write.csv(
+  subset(
+    as.data.frame(promsNotOverCGI.gr),
+    loci.2 >= 5
+  ),
+  file.path("2017-10-04_test_regions", "promsNotOverCGI.gr.csv"),
+  row.names = FALSE
+)
 
 sink("2017-10-04_test_regions/promsNotOverCGI_paired.txt")
 with(
@@ -748,6 +784,15 @@ pdf("2017-10-04_test_regions/CGIsOverProm_hist.pdf", width = 6, height = 4)
 hist(CGIOverProm.gr$loci.2, breaks = seq(0, max(CGIOverProm.gr$loci.2)+10, 10))
 dev.off()
 
+write.csv(
+  subset(
+    as.data.frame(CGIOverProm.gr, row.names = NULL),
+    loci.2 >= 4
+  ),
+  file.path("2017-10-04_test_regions", "CGIOverProm.gr.csv"),
+  row.names = FALSE
+)
+
 sink("2017-10-04_test_regions/CGIsOverProm_paired.txt")
 with(
   subset(
@@ -871,6 +916,14 @@ pdf("2017-10-04_test_regions/CGINotOverProm_hist.pdf", width = 6, height = 4)
 hist(CGINotOverProm.gr$loci.2, breaks = seq(0, max(CGINotOverProm.gr$loci.2)+10, 10))
 dev.off()
 
+write.csv(
+  subset(
+    as.data.frame(CGINotOverProm.gr, row.names = NULL),
+    loci.2 >= 4
+  ),
+  file.path("2017-10-04_test_regions", "CGINotOverProm.gr.csv"),
+  row.names = FALSE
+)
 sink("2017-10-04_test_regions/CGINotOverProm_paired.txt")
 with(
   subset(
